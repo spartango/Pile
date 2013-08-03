@@ -7,6 +7,8 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import us.percept.pile.model.Paper;
@@ -16,7 +18,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * User: spartango
@@ -25,7 +29,7 @@ import java.util.Collection;
  */
 public class ArxivSource extends AsyncPaperSource {
     private static final String ARXIV_HOST = "export.arxiv.org";
-    private static final long TIMEOUT = 60000; // ms
+    private static final long   TIMEOUT    = 60000; // ms
 
     private static final Logger logger = LoggerFactory.getLogger(ArxivSource.class);
 
@@ -91,7 +95,13 @@ public class ArxivSource extends AsyncPaperSource {
             return null;
         }
 
-        return parsePaper(body.toString());
+        try {
+            return parsePaper(parseAtomBody(body.toString()));
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            logger.error("Failed to parse body ", e);
+        }
+
+        return null;
     }
 
 
@@ -149,7 +159,13 @@ public class ArxivSource extends AsyncPaperSource {
             return null;
         }
 
-        return parseResults(body.toString());
+        try {
+            return parseResults(parseAtomBody(body.toString()));
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            logger.error("Failed to parse body ", e);
+        }
+
+        return null;
     }
 
 
@@ -173,8 +189,13 @@ public class ArxivSource extends AsyncPaperSource {
                     @Override
                     public void handle(Buffer event) {
                         logger.info("Arxiv request succeeded with body of ", event.length() + "b");
-                        Paper downloaded = parsePaper(event.toString());
-                        notifyPaperReceived(downloaded);
+                        try {
+                            Paper paper = parsePaper(parseAtomBody(event.toString()));
+                            notifyPaperReceived(paper);
+                        } catch (ParserConfigurationException | IOException | SAXException e) {
+                            logger.error("Failed to parse body ", e);
+                            notifyPaperFailure(identifier, e);
+                        }
                     }
                 });
 
@@ -208,8 +229,13 @@ public class ArxivSource extends AsyncPaperSource {
                     @Override
                     public void handle(Buffer event) {
                         logger.info("Arxiv search succeeded with body of ", event.length() + "b");
-                        Collection<Paper> downloaded = parseResults(event.toString());
-                        notifyResultsReceived(downloaded);
+                        try {
+                            Collection<Paper> results = parseResults(parseAtomBody(event.toString()));
+                            notifyResultsReceived(results);
+                        } catch (ParserConfigurationException | IOException | SAXException e) {
+                            logger.error("Failed to parse body ", e);
+                            notifySearchFailure(query, e);
+                        }
                     }
                 });
 
@@ -224,18 +250,18 @@ public class ArxivSource extends AsyncPaperSource {
         }).end();
     }
 
-
-    private Paper parsePaper(String body) throws IOException, SAXException, ParserConfigurationException {
+    private Document parseAtomBody(String body) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document document = dBuilder.parse(new InputSource(new StringReader(body)));
-
-        return parsePaper(document);
+        return dBuilder.parse(new InputSource(new StringReader(body)));
     }
 
     private Paper parsePaper(Document document) {
         // Get the Entry tag
+        return parsePaper(document.getElementsByTagName("entry").item(0));
+    }
 
+    private Paper parsePaper(Node entry) {
         // Get the identifier
         // Get the title
         // Get each of the authors
@@ -247,7 +273,16 @@ public class ArxivSource extends AsyncPaperSource {
         return null;
     }
 
-    private Collection<Paper> parseResults(String s) {
+    private Collection<Paper> parseResults(Document document) {
+        NodeList entries = document.getElementsByTagName("entry");
+        List<Paper> papers = new ArrayList<>(entries.getLength());
 
+        for (int i = 0; i < entries.getLength(); i++) {
+            papers.add(parsePaper(entries.item(i)));
+        }
+
+        return papers;
     }
+
+
 }
