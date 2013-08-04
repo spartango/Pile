@@ -246,7 +246,7 @@ public class ArxivSource extends AsyncPaperSource {
             public void handle(Throwable event) {
                 logger.error("Arxiv request failed with ", event);
                 // Notify that there's been an error
-                notifyPaperFailure(query, event);
+                notifySearchFailure(query, event);
             }
         }).end();
     }
