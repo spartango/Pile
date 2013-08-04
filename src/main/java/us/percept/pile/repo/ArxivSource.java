@@ -18,9 +18,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * User: spartango
@@ -257,20 +258,52 @@ public class ArxivSource extends AsyncPaperSource {
     }
 
     private Paper parsePaper(Document document) {
-        // Get the Entry tag
-        return parsePaper(document.getElementsByTagName("entry").item(0));
+        // Get the Entry tag, it's the only one
+        Node entry = document.getElementsByTagName("entry").item(0);
+        return parsePaper(entry);
     }
 
     private Paper parsePaper(Node entry) {
-        // Get the identifier
-        // Get the title
-        // Get each of the authors
-        // Get the summary
-        // Get the PDF URL
-        // Get the publication date
+        NodeList children = entry.getChildNodes();
+        Paper paper = new Paper();
+
+        // Read the fields sequentially, as we can't get them by name
+        for (int i = 0; i < children.getLength(); i++) {
+            Node field = children.item(i);
+            if(field.getNodeName().equals("author")) {
+                // First and only child node is a <name>
+                String name = field.getChildNodes().item(0).getTextContent();
+                paper.addAuthor(name);
+            } else if(field.getNodeName().equals("published")) {
+                String dateString = field.getTextContent();
+                // Date is in yyyy-MM-ddTHH:mm:ssZ
+                DateFormat df = new SimpleDateFormat("yyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
+                try {
+                    Date result =  df.parse(dateString);
+                    paper.setDate(result);
+                } catch (ParseException e) {
+                    logger.warn("Failed to parse publication date for "+dateString);
+                }
+            } else if(field.getNodeName().equals("title")) {
+                paper.setTitle(field.getTextContent());
+            } else if(field.getNodeName().equals("summary")) {
+                paper.setSummary(field.getTextContent());
+            } else if(field.getNodeName().equals("link")) {
+                // Check if this is the PDF link
+                Node titleNode = field.getAttributes().getNamedItem("title");
+                Node hrefNode = field.getAttributes().getNamedItem("href");
+                if(titleNode != null && titleNode.getNodeValue().equals("pdf")) {
+                    paper.setFileLocation(hrefNode.getNodeValue());
+                }
+            }
+
+            // Otherwise it's an extraneous field.
+            // No, not everything in the arxiv metadata is actually useful. And who cares about DOIs?!
+        }
+
 
         // Build a Paper
-        return null;
+        return paper;
     }
 
     private Collection<Paper> parseResults(Document document) {

@@ -23,6 +23,9 @@ dependencies {
     // Map DB (Persistent index)
     compile group: 'org.mapdb', name: 'mapdb', version: '0.9.3'
 
+    // PDFBox (PDF reading)
+    compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '1.8.2'
+
     // Logging
     compile([group: 'org.slf4j', name: 'slf4j-api', version: '1.6.6'], 
             [group: 'ch.qos.logback', name: 'logback-core', version: '1.0.7'],
