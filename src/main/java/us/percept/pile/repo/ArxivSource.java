@@ -126,7 +126,7 @@ public class ArxivSource extends AsyncPaperSource {
                     event.bodyHandler(new Handler<Buffer>() {
                         @Override
                         public void handle(Buffer event) {
-                            logger.info("Arxiv query succeeded with body of ", event.length() + "b");
+                            logger.info("Arxiv query succeeded with body of "+ event.length() + "b");
 
                             // Pass the data on for parsing
                             body.setBuffer(0, event);
@@ -190,7 +190,7 @@ public class ArxivSource extends AsyncPaperSource {
                 event.bodyHandler(new Handler<Buffer>() {
                     @Override
                     public void handle(Buffer event) {
-                        logger.info("Arxiv request succeeded with body of ", event.length() + "b");
+                        logger.info("Arxiv request succeeded with body of "+ event.length() + "b");
                         try {
                             Paper paper = parsePaper(parseAtomBody(event.toString()));
                             notifyPaperReceived(paper);
@@ -230,7 +230,7 @@ public class ArxivSource extends AsyncPaperSource {
                 event.bodyHandler(new Handler<Buffer>() {
                     @Override
                     public void handle(Buffer event) {
-                        logger.info("Arxiv search succeeded with body of ", event.length() + "b");
+                        logger.info("Arxiv search succeeded with body of "+ event.length() + "b");
                         try {
                             Collection<Paper> results = parseResults(parseAtomBody(event.toString()));
                             notifyResultsReceived(results);
@@ -310,6 +310,8 @@ public class ArxivSource extends AsyncPaperSource {
     private Collection<Paper> parseResults(Document document) {
         NodeList entries = document.getElementsByTagName("entry");
         List<Paper> papers = new ArrayList<>(entries.getLength());
+
+        logger.info("Query returned with "+entries.getLength()+" papers");
 
         // Parse each entry, which represents a paper
         for (int i = 0; i < entries.getLength(); i++) {

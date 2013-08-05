@@ -26,6 +26,9 @@ dependencies {
     // PDFBox (PDF reading)
     compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '1.8.2'
 
+    // IntelliJ FormsRT (Layout)
+    compile group: 'com.intellij', name: 'forms_rt', version: '7.0.3'
+
     // Logging
     compile([group: 'org.slf4j', name: 'slf4j-api', version: '1.6.6'], 
             [group: 'ch.qos.logback', name: 'logback-core', version: '1.0.7'],
