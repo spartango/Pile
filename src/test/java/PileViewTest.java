@@ -1,4 +1,5 @@
 import us.percept.pile.model.Paper;
+import us.percept.pile.repo.ArxivSource;
 import us.percept.pile.view.PileView;
 
 import javax.swing.*;
@@ -33,8 +34,11 @@ public class PileViewTest {
                                  "This paper was written by a fool who could hardly spell",
                                  new Date(),
                                  "none");
+        ArxivSource source = new ArxivSource();
+        Paper third = source.getPaper("0708.0523");
 
-        ArrayList<Paper> papers = new ArrayList<>();
+        ArrayList <Paper> papers = new ArrayList<>();
+        papers.add(third);
         for(int i=0; i<100; i++){
             papers.add(i % 2 == 0? first : second);
         }

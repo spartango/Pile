@@ -1,9 +1,17 @@
 package us.percept.pile.view;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.percept.pile.model.Paper;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -13,6 +21,8 @@ import java.text.SimpleDateFormat;
  * Time: 2:56 AM.
  */
 public class PaperView extends JPanel implements ListCellRenderer {
+    private static final Logger logger = LoggerFactory.getLogger(PaperView.class);
+
     private JLabel    titleField;
     private JLabel    authorsField;
     private JTextArea summaryArea;
@@ -36,7 +46,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
             String lastAuthor = authors.size() > 0 ? authors.get(authors.size() - 1) : authors.get(0);
             for (String author : authors) {
                 authorString.append(author);
-                if(author != lastAuthor) {
+                if (author != lastAuthor) {
                     authorString.append(", ");
                 }
             }
@@ -46,9 +56,21 @@ public class PaperView extends JPanel implements ListCellRenderer {
             DateFormat df = new SimpleDateFormat("MMM yyy");
             String date = df.format(paper.getDate());
             dateField.setText(date);
-
-            // TODO set the PDF label and it's linky-ness
+            pdfLabel.setToolTipText(paper.getFileLocation());
         }
+
+        Border divider = BorderFactory.createMatteBorder(10, 1, 10, 1, SystemColor.lightGray);
+        if (isSelected) {
+            this.setBorder(BorderFactory.createCompoundBorder(divider, BorderFactory.createMatteBorder(1,
+                                                                                                       10,
+                                                                                                       1,
+                                                                                                       10,
+                                                                                                       SystemColor.textHighlight)
+            ));
+        } else {
+            this.setBorder(divider);
+        }
+
         // Populate the fields from the paper
         return this;
     }
@@ -68,7 +90,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
+        this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(new Color(-1));
         titleField = new JLabel();
         titleField.setFont(new Font(titleField.getFont().getName(), Font.BOLD, 16));
@@ -125,7 +147,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   null,
                                                                   null,
-                                                                  0,
+                                                                  1,
                                                                   false));
         pdfLabel = new JLabel();
         pdfLabel.setForeground(UIManager.getColor("controlHighlight"));
@@ -142,52 +164,37 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   null,
                                                                   null,
-                                                                  0,
+                                                                  1,
                                                                   false));
         final JSeparator separator1 = new JSeparator();
         this.add(separator1,
-                   new com.intellij.uiDesigner.core.GridConstraints(2,
-                                                                    0,
-                                                                    1,
-                                                                    2,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTH,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                                                                    null,
-                                                                    null,
-                                                                    null,
-                                                                    0,
-                                                                    false));
+                 new com.intellij.uiDesigner.core.GridConstraints(2,
+                                                                  0,
+                                                                  1,
+                                                                  2,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTH,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
+                                                                  null,
+                                                                  null,
+                                                                  null,
+                                                                  0,
+                                                                  false));
         summaryArea = new JTextArea();
         this.add(summaryArea,
-                   new com.intellij.uiDesigner.core.GridConstraints(3,
-                                                                    0,
-                                                                    1,
-                                                                    2,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    null,
-                                                                    new Dimension(150, 50),
-                                                                    null,
-                                                                    1,
-                                                                    false));
-        final JSeparator separator2 = new JSeparator();
-        this.add(separator2,
-                   new com.intellij.uiDesigner.core.GridConstraints(4,
-                                                                    0,
-                                                                    1,
-                                                                    2,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.ANCHOR_SOUTH,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                                                                    null,
-                                                                    null,
-                                                                    null,
-                                                                    0,
-                                                                    false));
+                 new com.intellij.uiDesigner.core.GridConstraints(3,
+                                                                  0,
+                                                                  1,
+                                                                  2,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  null,
+                                                                  new Dimension(150, 50),
+                                                                  null,
+                                                                  1,
+                                                                  false));
     }
 }

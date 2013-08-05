@@ -62,7 +62,7 @@ public class ArxivSource extends AsyncPaperSource {
                     event.bodyHandler(new Handler<Buffer>() {
                         @Override
                         public void handle(Buffer event) {
-                            logger.info("Arxiv request succeeded with body of ", event.length() + "b");
+                            logger.info("Arxiv request succeeded with body of "+ event.length() + "b");
 
                             // Pass the data on for parsing
                             body.setBuffer(0, event);
@@ -273,7 +273,7 @@ public class ArxivSource extends AsyncPaperSource {
             Node field = children.item(i);
             if (field.getNodeName().equals("author")) {
                 // First and only child node is a <name>
-                String name = field.getChildNodes().item(0).getTextContent();
+                String name = field.getTextContent().trim();
                 paper.addAuthor(name);
             } else if (field.getNodeName().equals("published")) {
                 String dateString = field.getTextContent();
