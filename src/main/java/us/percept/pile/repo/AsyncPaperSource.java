@@ -4,11 +4,9 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import us.percept.pile.model.Paper;
 
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * User: spartango
@@ -41,25 +39,25 @@ public abstract class AsyncPaperSource implements PaperSource {
     }
 
     protected void notifyPaperReceived(Paper paper) {
-        for(PaperSourceListener listener : listeners) {
+        for (PaperSourceListener listener : listeners) {
             listener.onPaperReceived(paper);
         }
     }
 
     protected void notifyResultsReceived(Collection<Paper> results) {
-        for(PaperSourceListener listener : listeners) {
+        for (PaperSourceListener listener : listeners) {
             listener.onResultsReceived(results);
         }
     }
 
     protected void notifyPaperFailure(String id, Throwable cause) {
-        for(PaperSourceListener listener : listeners) {
+        for (PaperSourceListener listener : listeners) {
             listener.onLookupFailure(id, cause);
         }
     }
 
     protected void notifySearchFailure(String query, Throwable cause) {
-        for(PaperSourceListener listener : listeners) {
+        for (PaperSourceListener listener : listeners) {
             listener.onSearchFailure(query, cause);
         }
     }

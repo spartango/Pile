@@ -11,12 +11,15 @@ import java.util.Collection;
  */
 public interface PaperSource {
     public Paper getPaper(String identifier);
+
     public Collection<Paper> findPapers(String query);
 
     // Asynchronous requests
     public void requestPaper(String identifier);
+
     public void requestSearch(String query);
 
     public void addListener(PaperSourceListener listener);
+
     public void removeListener(PaperSourceListener listener);
 }

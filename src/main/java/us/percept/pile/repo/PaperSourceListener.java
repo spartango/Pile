@@ -11,8 +11,10 @@ import java.util.Collection;
  */
 public interface PaperSourceListener {
     public void onPaperReceived(Paper paper);
+
     public void onResultsReceived(Collection<Paper> papers);
 
     public void onLookupFailure(String paper, Throwable cause);
+
     public void onSearchFailure(String query, Throwable cause);
 }

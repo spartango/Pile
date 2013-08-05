@@ -149,6 +149,7 @@ public class ArxivSource extends AsyncPaperSource {
             }).end();
 
             try {
+                // Wait for signaling from the request thread
                 body.wait(TIMEOUT);
             } catch (InterruptedException e) {
                 logger.error("Arxiv request was interrupted by ", e);
@@ -270,29 +271,29 @@ public class ArxivSource extends AsyncPaperSource {
         // Read the fields sequentially, as we can't get them by name
         for (int i = 0; i < children.getLength(); i++) {
             Node field = children.item(i);
-            if(field.getNodeName().equals("author")) {
+            if (field.getNodeName().equals("author")) {
                 // First and only child node is a <name>
                 String name = field.getChildNodes().item(0).getTextContent();
                 paper.addAuthor(name);
-            } else if(field.getNodeName().equals("published")) {
+            } else if (field.getNodeName().equals("published")) {
                 String dateString = field.getTextContent();
                 // Date is in yyyy-MM-ddTHH:mm:ssZ
                 DateFormat df = new SimpleDateFormat("yyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
                 try {
-                    Date result =  df.parse(dateString);
+                    Date result = df.parse(dateString);
                     paper.setDate(result);
                 } catch (ParseException e) {
-                    logger.warn("Failed to parse publication date for "+dateString);
+                    logger.warn("Failed to parse publication date for " + dateString);
                 }
-            } else if(field.getNodeName().equals("title")) {
+            } else if (field.getNodeName().equals("title")) {
                 paper.setTitle(field.getTextContent());
-            } else if(field.getNodeName().equals("summary")) {
+            } else if (field.getNodeName().equals("summary")) {
                 paper.setSummary(field.getTextContent());
-            } else if(field.getNodeName().equals("link")) {
+            } else if (field.getNodeName().equals("link")) {
                 // Check if this is the PDF link
                 Node titleNode = field.getAttributes().getNamedItem("title");
                 Node hrefNode = field.getAttributes().getNamedItem("href");
-                if(titleNode != null && titleNode.getNodeValue().equals("pdf")) {
+                if (titleNode != null && titleNode.getNodeValue().equals("pdf")) {
                     paper.setFileLocation(hrefNode.getNodeValue());
                 }
             }
@@ -310,6 +311,7 @@ public class ArxivSource extends AsyncPaperSource {
         NodeList entries = document.getElementsByTagName("entry");
         List<Paper> papers = new ArrayList<>(entries.getLength());
 
+        // Parse each entry, which represents a paper
         for (int i = 0; i < entries.getLength(); i++) {
             papers.add(parsePaper(entries.item(i)));
         }
