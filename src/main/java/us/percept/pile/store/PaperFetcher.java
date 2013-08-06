@@ -44,7 +44,7 @@ public class PaperFetcher {
             }
 
             // Build a client
-            HttpClient client = vertx.createHttpClient();
+            final HttpClient client = vertx.createHttpClient();
             client.setHost(url.getHost());
             client.setPort(url.getPort() == -1 ? url.getDefaultPort() : url.getPort());
             client.get(url.getPath(), new Handler<HttpClientResponse>() {
@@ -57,7 +57,7 @@ public class PaperFetcher {
                     }
 
                     // Open up a file to write to
-                    writePaper(paper, url.getFile(), event);
+                    writePaper(paper, url.getFile(), event, client);
                 }
             }).exceptionHandler(new Handler<Throwable>() {
                 @Override public void handle(Throwable event) {
@@ -72,7 +72,7 @@ public class PaperFetcher {
         }
     }
 
-    private void writePaper(final Paper paper, String filename, final ReadStream stream) {
+    private void writePaper(final Paper paper, String filename, final ReadStream stream, final HttpClient client) {
         final String path = paperFolder+ File.pathSeparator+filename;
         vertx.fileSystem().open(path, new AsyncResultHandler<AsyncFile>() {
             public void handle(AsyncResult<AsyncFile> ar) {
@@ -80,6 +80,7 @@ public class PaperFetcher {
                     // File failed to open
                     logger.error("File "+path+" failed to open");
                     notifyFetchFailed(paper, ar.cause());
+                    client.close();
                     return;
                 }
 
@@ -92,7 +93,7 @@ public class PaperFetcher {
                         // Update the paper location
                         logger.info("Paper downloaded to "+path);
                         paper.setFileLocation("file://"+path);
-
+                        client.close();
                         notifyFetched(paper);
                     }
                 });
