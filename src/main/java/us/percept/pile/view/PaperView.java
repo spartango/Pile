@@ -34,7 +34,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
     public void setPaper(Paper p) {
         this.paper = p;
-        titleField.setText(paper.getTitle());
+        titleField.setText("<html>"+paper.getTitle()+"</html>");
 
         StringBuilder authorString = new StringBuilder();
         java.util.List<String> authors = paper.getAuthors();
@@ -52,6 +52,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
         authorsField.setText(authorString.toString());
         summaryArea.setText(paper.getSummary());
+        summaryArea.setEditable(false);
 
         DateFormat df = new SimpleDateFormat("MMM yyy");
         String date = df.format(paper.getDate());
@@ -66,6 +67,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
             logger.error("Bad URL ", e1);
         }
     }
+
     @Override public Component getListCellRendererComponent(JList list,
                                                             Object value,
                                                             int index,
@@ -100,6 +102,12 @@ public class PaperView extends JPanel implements ListCellRenderer {
     private void $$$setupUI$$$() {
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(new Color(-1));
+
+        // Border is thin on top and thicker/darker on the bottom
+        Border topBorder = BorderFactory.createMatteBorder(0, 2, 0, 2, new Color(228, 228, 228));
+        Border bottomBorder = BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(208, 208, 208));
+        this.setBorder(BorderFactory.createCompoundBorder(topBorder, bottomBorder));
+
         titleField = new JLabel();
         titleField.setFont(new Font(titleField.getFont().getName(), Font.BOLD, 16));
         titleField.setText("Title");

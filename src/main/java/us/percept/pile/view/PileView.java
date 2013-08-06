@@ -19,13 +19,18 @@ public class PileView extends JPanel {
 
     private JTextField  searchField;
     private JScrollPane listScrollPane;
-    private JPanel       paperList;
+    private JPanel      paperList;
 
     private void createUIComponents() {
         searchField = new JTextField();
+
+        GridBagLayout layout = new GridBagLayout();
+
+
+        paperList = new JPanel(layout);
         listScrollPane = new JScrollPane();
-        paperList = new JPanel(new GridLayout(0,1));
     }
+
     public void addSearchListener(ActionListener listener) {
         searchField.addActionListener(listener);
     }
@@ -38,17 +43,32 @@ public class PileView extends JPanel {
         // Build a view for it
         PaperView view = new PaperView();
         view.setPaper(paper);
-        paperList.add(view);
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = paperList.getComponentCount();
+
+        paperList.add(view, constraints);
+        addSpacer();
+    }
+
+    private void addSpacer() {
+        GridBagConstraints spacerConstraints = new GridBagConstraints();
+        spacerConstraints.gridx = 0;
+        spacerConstraints.gridy = paperList.getComponentCount();
+
+        paperList.add(Box.createVerticalStrut(18), spacerConstraints);
     }
 
     public void addPapers(Collection<Paper> papers) {
-        for(Paper p : papers) {
+        for (Paper p : papers) {
             addPaper(p);
         }
     }
 
     public void clearPapers() {
         paperList.removeAll();
+        addSpacer();
     }
 
 
@@ -60,36 +80,40 @@ public class PileView extends JPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        this.setBackground(new Color(238, 238, 238));
         this.add(searchField,
-                   new com.intellij.uiDesigner.core.GridConstraints(0,
-                                                                    0,
-                                                                    1,
-                                                                    1,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
-                                                                    null,
-                                                                    new Dimension(150, -1),
-                                                                    null,
-                                                                    0,
-                                                                    false));
+                 new com.intellij.uiDesigner.core.GridConstraints(0,
+                                                                  0,
+                                                                  1,
+                                                                  1,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
+                                                                  null,
+                                                                  new Dimension(150, -1),
+                                                                  null,
+                                                                  0,
+                                                                  false));
         this.add(listScrollPane,
-                   new com.intellij.uiDesigner.core.GridConstraints(1,
-                                                                    0,
-                                                                    1,
-                                                                    1,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK
-                                                                    | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK
-                                                                    | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                    null,
-                                                                    null,
-                                                                    null,
-                                                                    0,
-                                                                    false));
+                 new com.intellij.uiDesigner.core.GridConstraints(1,
+                                                                  0,
+                                                                  1,
+                                                                  1,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK
+                                                                  | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK
+                                                                  | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  null,
+                                                                  null,
+                                                                  null,
+                                                                  0,
+                                                                  false));
         listScrollPane.setViewportView(paperList);
+        listScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        addSpacer();
     }
 }
