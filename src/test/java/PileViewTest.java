@@ -32,7 +32,8 @@ public class PileViewTest {
             }
 
             @Override public void onResultsReceived(Collection<Paper> papers) {
-                pileView.setListData(papers.toArray());
+                pileView.clearPapers();
+                pileView.addPapers(papers);
             }
 
             @Override public void onLookupFailure(String paper, Throwable cause) {

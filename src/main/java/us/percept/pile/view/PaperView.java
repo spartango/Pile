@@ -7,6 +7,11 @@ import us.percept.pile.model.Paper;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -18,12 +23,49 @@ import java.text.SimpleDateFormat;
 public class PaperView extends JPanel implements ListCellRenderer {
     private static final Logger logger = LoggerFactory.getLogger(PaperView.class);
 
-    private JLabel    titleField;
-    private JLabel    authorsField;
-    private JTextArea summaryArea;
-    private JLabel    dateField;
-    private JLabel    pdfLabel;
+    private JLabel     titleField;
+    private JLabel     authorsField;
+    private JTextArea  summaryArea;
+    private JLabel     dateField;
+    private JLabel     pdfLabel;
+    private JSeparator separator;
 
+    private Paper paper;
+
+    public void setPaper(Paper p) {
+        this.paper = p;
+        titleField.setText(paper.getTitle());
+
+        StringBuilder authorString = new StringBuilder();
+        java.util.List<String> authors = paper.getAuthors();
+
+        authorString.append("<html>");
+        // Get the last author and guard against empty authors
+        String lastAuthor = authors.size() > 0 ? authors.get(authors.size() - 1) : authors.get(0);
+        for (String author : authors) {
+            authorString.append(author);
+            if (author != lastAuthor) {
+                authorString.append(", ");
+            }
+        }
+        authorString.append("</html>");
+
+        authorsField.setText(authorString.toString());
+        summaryArea.setText(paper.getSummary());
+
+        DateFormat df = new SimpleDateFormat("MMM yyy");
+        String date = df.format(paper.getDate());
+        dateField.setText(date);
+        pdfLabel.setToolTipText(paper.getFileLocation());
+    }
+
+    public void openPaper() {
+        try {
+            Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
+        } catch (URISyntaxException | IOException e1) {
+            logger.error("Bad URL ", e1);
+        }
+    }
     @Override public Component getListCellRendererComponent(JList list,
                                                             Object value,
                                                             int index,
@@ -31,30 +73,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                             boolean cellHasFocus) {
         // Value should be a paper
         if (value instanceof Paper) {
-            Paper paper = (Paper) value;
-            titleField.setText(paper.getTitle());
-
-            StringBuilder authorString = new StringBuilder();
-            java.util.List<String> authors = paper.getAuthors();
-
-            authorString.append("<html>");
-            // Get the last author and guard against empty authors
-            String lastAuthor = authors.size() > 0 ? authors.get(authors.size() - 1) : authors.get(0);
-            for (String author : authors) {
-                authorString.append(author);
-                if (author != lastAuthor) {
-                    authorString.append(", ");
-                }
-            }
-            authorString.append("</html>");
-
-            authorsField.setText(authorString.toString());
-            summaryArea.setText(paper.getSummary());
-
-            DateFormat df = new SimpleDateFormat("MMM yyy");
-            String date = df.format(paper.getDate());
-            dateField.setText(date);
-            pdfLabel.setToolTipText(paper.getFileLocation());
+            setPaper((Paper) value);
         }
 
         Border divider = BorderFactory.createMatteBorder(0, 1, 20, 1, SystemColor.lightGray);
@@ -155,8 +174,8 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   1,
                                                                   false));
-        final JSeparator separator1 = new JSeparator();
-        this.add(separator1,
+        separator = new JSeparator();
+        this.add(separator,
                  new com.intellij.uiDesigner.core.GridConstraints(2,
                                                                   0,
                                                                   1,
@@ -185,5 +204,16 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   1,
                                                                   false));
+
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    openPaper();
+                }
+            }
+        });
     }
+
+
 }

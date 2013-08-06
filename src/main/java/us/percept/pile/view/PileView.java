@@ -7,11 +7,7 @@ import us.percept.pile.model.Paper;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.Collection;
 
 /**
  * Author: spartango
@@ -23,32 +19,13 @@ public class PileView extends JPanel {
 
     private JTextField  searchField;
     private JScrollPane listScrollPane;
-    private JList       paperList;
+    private JPanel       paperList;
 
     private void createUIComponents() {
         searchField = new JTextField();
         listScrollPane = new JScrollPane();
-        paperList = new JList();
-        paperList.setCellRenderer(new PaperView());
-
-        paperList.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    Paper paper = (Paper) paperList.getSelectedValue();
-                    try {
-                        Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
-                    } catch (URISyntaxException | IOException e1) {
-                        logger.error("Bad URL ", e1);
-                    }
-                }
-            }
-        });
+        paperList = new JPanel(new GridLayout(0,1));
     }
-
-    public void setListData(Object[] listData) {
-        paperList.setListData(listData);
-    }
-
     public void addSearchListener(ActionListener listener) {
         searchField.addActionListener(listener);
     }
@@ -56,6 +33,24 @@ public class PileView extends JPanel {
     public void removeSearchListener(ActionListener listener) {
         searchField.removeActionListener(listener);
     }
+
+    public void addPaper(Paper paper) {
+        // Build a view for it
+        PaperView view = new PaperView();
+        view.setPaper(paper);
+        paperList.add(view);
+    }
+
+    public void addPapers(Collection<Paper> papers) {
+        for(Paper p : papers) {
+            addPaper(p);
+        }
+    }
+
+    public void clearPapers() {
+        paperList.removeAll();
+    }
+
 
     {
         // GUI Initializer
@@ -65,7 +60,6 @@ public class PileView extends JPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        searchField = new JTextField();
         this.add(searchField,
                    new com.intellij.uiDesigner.core.GridConstraints(0,
                                                                     0,
@@ -80,7 +74,6 @@ public class PileView extends JPanel {
                                                                     null,
                                                                     0,
                                                                     false));
-        listScrollPane = new JScrollPane();
         this.add(listScrollPane,
                    new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                     0,
