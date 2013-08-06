@@ -123,7 +123,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
         this.setBorder(BorderFactory.createCompoundBorder(topBorder, bottomBorder));
 
         titleField = new JLabel();
-        titleField.setFont(new Font("Roboto Light", Font.PLAIN, 20));
+        titleField.setFont(new Font("Roboto Light", Font.PLAIN, 23));
         titleField.setText("Title");
         titleField.setVerticalAlignment(0);
         this.add(titleField,
@@ -136,14 +136,14 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
                                                                   com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
                                                                   null,
-                                                                  new Dimension(500, 20),
+                                                                  new Dimension(500, 22),
                                                                   null,
                                                                   1,
                                                                   false));
         authorsField = new JLabel();
-        authorsField.setBackground(new Color(-1));
         authorsField.setText("Authors");
-        authorsField.setFont(new Font("Roboto Regular", Font.PLAIN, 16));
+        authorsField.setFont(new Font("Roboto Light", Font.PLAIN, 17));
+        authorsField.setEnabled(false);
         this.add(authorsField,
                  new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                   0,
@@ -162,7 +162,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
         summaryArea.setEditable(false);
         summaryArea.setLineWrap(true);
         summaryArea.setText("This is a summary of the article presented here.");
-        summaryArea.setFont(new Font("Roboto Regular", Font.PLAIN, 12));
+        summaryArea.setFont(new Font("Roboto Regular", Font.PLAIN, 13));
         this.add(summaryArea,
                  new com.intellij.uiDesigner.core.GridConstraints(3,
                                                                   0,
@@ -180,7 +180,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
         dateField = new JLabel();
         dateField.setEnabled(false);
-        dateField.setFont(new Font("Roboto Regular", Font.PLAIN, 14));
+        dateField.setFont(new Font("Roboto Regular", Font.PLAIN, 15));
         dateField.setText("Jan 2013");
         this.add(dateField,
                  new com.intellij.uiDesigner.core.GridConstraints(0,
@@ -199,7 +199,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
         pdfLabel = new JLabel();
         pdfLabel.setForeground(UIManager.getColor("controlHighlight"));
         pdfLabel.setText("PDF");
-        pdfLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 14));
+        pdfLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 15));
         this.add(pdfLabel,
                  new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                   1,

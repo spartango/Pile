@@ -92,7 +92,7 @@ public class PileView extends JPanel {
         createUIComponents();
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(new Color(238, 238, 238));
-        searchField.setFont(new Font("Roboto Regular", Font.PLAIN, 12));
+        searchField.setFont(new Font("Roboto Regular", Font.PLAIN, 13));
         this.add(searchField,
                  new com.intellij.uiDesigner.core.GridConstraints(0,
                                                                   0,
