@@ -7,6 +7,8 @@ import us.percept.pile.model.Paper;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -17,17 +19,26 @@ import java.util.Collection;
 public class PileView extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(PileView.class);
 
+    static {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Light.ttf"));
+            Font robotoLight = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Regular.ttf"));
+            ge.registerFont(robotoLight);
+            ge.registerFont(robotoRegular);
+            logger.info("Fonts added: "+robotoLight.getName()+" & "+robotoRegular.getName());
+        } catch (FontFormatException | IOException e) {
+            logger.warn("Failed to load Roboto font");
+        }
+    }
+
     private JTextField  searchField;
     private JScrollPane listScrollPane;
     private JPanel      paperList;
 
     private void createUIComponents() {
         searchField = new JTextField();
-
-        GridBagLayout layout = new GridBagLayout();
-
-
-        paperList = new JPanel(layout);
+        paperList = new JPanel(new GridBagLayout());
         listScrollPane = new JScrollPane();
     }
 
@@ -81,6 +92,7 @@ public class PileView extends JPanel {
         createUIComponents();
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(new Color(238, 238, 238));
+        searchField.setFont(new Font("Roboto Regular", Font.PLAIN, 12));
         this.add(searchField,
                  new com.intellij.uiDesigner.core.GridConstraints(0,
                                                                   0,

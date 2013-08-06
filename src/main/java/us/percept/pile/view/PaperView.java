@@ -9,6 +9,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,6 +24,19 @@ import java.text.SimpleDateFormat;
 public class PaperView extends JPanel implements ListCellRenderer {
     private static final Logger logger = LoggerFactory.getLogger(PaperView.class);
 
+    static {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Light.ttf"));
+            Font robotoLight = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Regular.ttf"));
+            ge.registerFont(robotoLight);
+            ge.registerFont(robotoRegular);
+            logger.info("Fonts added: "+robotoLight.getName()+" & "+robotoRegular.getName());
+        } catch (FontFormatException | IOException e) {
+            logger.warn("Failed to load Roboto font");
+        }
+    }
+
     private JLabel     titleField;
     private JLabel     authorsField;
     private JTextArea  summaryArea;
@@ -34,7 +48,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
     public void setPaper(Paper p) {
         this.paper = p;
-        titleField.setText("<html>"+paper.getTitle()+"</html>");
+        titleField.setText("<html>" + paper.getTitle() + "</html>");
 
         StringBuilder authorString = new StringBuilder();
         java.util.List<String> authors = paper.getAuthors();
@@ -109,7 +123,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
         this.setBorder(BorderFactory.createCompoundBorder(topBorder, bottomBorder));
 
         titleField = new JLabel();
-        titleField.setFont(new Font(titleField.getFont().getName(), Font.BOLD, 16));
+        titleField.setFont(new Font("Roboto Light", Font.PLAIN, 20));
         titleField.setText("Title");
         titleField.setVerticalAlignment(0);
         this.add(titleField,
@@ -122,13 +136,14 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
                                                                   com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED,
                                                                   null,
-                                                                  new Dimension(430, 20),
+                                                                  new Dimension(500, 20),
                                                                   null,
                                                                   1,
                                                                   false));
         authorsField = new JLabel();
         authorsField.setBackground(new Color(-1));
         authorsField.setText("Authors");
+        authorsField.setFont(new Font("Roboto Regular", Font.PLAIN, 16));
         this.add(authorsField,
                  new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                   0,
@@ -139,7 +154,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
                                                                   1,
                                                                   null,
-                                                                  new Dimension(430, 16),
+                                                                  new Dimension(500, 16),
                                                                   null,
                                                                   1,
                                                                   false));
@@ -147,9 +162,25 @@ public class PaperView extends JPanel implements ListCellRenderer {
         summaryArea.setEditable(false);
         summaryArea.setLineWrap(true);
         summaryArea.setText("This is a summary of the article presented here.");
+        summaryArea.setFont(new Font("Roboto Regular", Font.PLAIN, 12));
+        this.add(summaryArea,
+                 new com.intellij.uiDesigner.core.GridConstraints(3,
+                                                                  0,
+                                                                  1,
+                                                                  2,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
+                                                                  null,
+                                                                  null,
+                                                                  null,
+                                                                  1,
+                                                                  false));
+
         dateField = new JLabel();
         dateField.setEnabled(false);
-        dateField.setFont(new Font(dateField.getFont().getName(), Font.ITALIC, dateField.getFont().getSize()));
+        dateField.setFont(new Font("Roboto Regular", Font.PLAIN, 14));
         dateField.setText("Jan 2013");
         this.add(dateField,
                  new com.intellij.uiDesigner.core.GridConstraints(0,
@@ -168,6 +199,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
         pdfLabel = new JLabel();
         pdfLabel.setForeground(UIManager.getColor("controlHighlight"));
         pdfLabel.setText("PDF");
+        pdfLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 14));
         this.add(pdfLabel,
                  new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                   1,
@@ -197,28 +229,11 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   0,
                                                                   false));
-        summaryArea = new JTextArea();
-        this.add(summaryArea,
-                 new com.intellij.uiDesigner.core.GridConstraints(3,
-                                                                  0,
-                                                                  1,
-                                                                  2,
-                                                                  com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
-                                                                  com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
-                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                  com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW,
-                                                                  null,
-                                                                  null,
-                                                                  null,
-                                                                  1,
-                                                                  false));
 
 
         this.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    openPaper();
-                }
+                openPaper();
             }
         });
     }
