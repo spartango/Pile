@@ -1,5 +1,6 @@
 package us.percept.pile.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -10,7 +11,7 @@ import java.util.List;
  * Date: 8/2/13
  * Time: 6:21 PM
  */
-public class Paper {
+public class Paper implements Serializable{
 
     private String       identifier;
     private String       title;

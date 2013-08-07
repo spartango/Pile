@@ -4,10 +4,13 @@ import us.percept.pile.model.Paper;
 import us.percept.pile.repo.ArxivSource;
 import us.percept.pile.repo.PaperSourceListener;
 import us.percept.pile.view.PileView;
+import us.percept.pile.view.PileViewListener;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 
 /**
@@ -29,6 +32,7 @@ public class PileViewTest {
         final ArxivSource source = new ArxivSource();
         source.addListener(new PaperSourceListener() {
             @Override public void onPaperReceived(Paper paper) {
+                pileView.addPaper(paper);
             }
 
             @Override public void onResultsReceived(Collection<Paper> papers) {
@@ -43,10 +47,23 @@ public class PileViewTest {
             }
         });
 
-        pileView.addSearchListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) {
-                logger.info("Searching for "+e.getActionCommand());
-                source.requestSearch(e.getActionCommand());
+        pileView.addListener(new PileViewListener() {
+            @Override public void onSearchRequested(String query) {
+                logger.info("Query: "+query);
+                source.requestSearch(query);
+            }
+
+            @Override public void onPaperOpened(Paper paper) {
+                logger.info("Paper open requested");
+                try {
+                    Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
+                } catch (URISyntaxException | IOException e1) {
+                    logger.error("Bad URL ", e1);
+                }
+            }
+
+            @Override public void onPaperArchived(Paper paper) {
+                logger.info("Paper archive requested");
             }
         });
 

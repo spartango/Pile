@@ -9,6 +9,7 @@ import us.percept.pile.store.PaperFetcher;
 import us.percept.pile.store.PaperFetcherListener;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
+import us.percept.pile.view.PileViewListener;
 
 import java.awt.*;
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.util.Collection;
  * Date: 8/6/13
  * Time: 10:06 PM.
  */
-public class QueueController implements PaperSourceListener, PaperFetcherListener{
+public class QueueController implements PaperSourceListener, PaperFetcherListener, PileViewListener {
     private static final Logger logger = LoggerFactory.getLogger(QueueController.class);
 
     private PileView pileView;
@@ -30,29 +31,42 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
     private PaperSource  source;
     private PaperFetcher fetcher;
 
+    public QueueController(PileView pileView,
+                           PaperStorage storage,
+                           PaperSource source,
+                           PaperFetcher fetcher) {
+        this.pileView = pileView;
+        this.storage = storage;
+        this.source = source;
+        this.fetcher = fetcher;
+
+        pileView.addListener(this);
+        source.addListener(this);
+        fetcher.addListener(this);
+    }
+
+    // App Delegate
     public void onLoad() {
         // Clear the pileview
         pileView.clearPapers();
 
         // Get the current queue papers from storage
         Collection<Paper> papers = storage.getQueue();
+        logger.info("Loaded "+papers.size()+" papers from file");
         pileView.addPapers(papers);
     }
 
-    public void onImportRequest() {
-        // Show the import dialog
-        // TODO
-    }
-
-    public void onIdImported(String identifier) {
+    // PileView Delegate
+    public void onSearchRequested(String identifier) {
         // Get the Paper metadata
         source.requestPaper(identifier);
     }
 
-
     public void onPaperArchived(Paper paper) {
         storage.archivePaper(paper);
         storage.dequeuePaper(paper.getIdentifier());
+
+        pileView.removePaper(paper);
     }
 
     public void onPaperOpened(Paper paper) {
@@ -63,6 +77,7 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
         }
     }
 
+    // PaperSource Delegate
     @Override public void onPaperReceived(Paper paper) {
         // Store the paper
         storage.enqueuePaper(paper);
@@ -71,6 +86,8 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
         pileView.addPaper(paper);
 
         logger.info("Paper "+paper.getIdentifier()+" is queued");
+
+        fetcher.fetch(paper);
     }
 
     @Override public void onLookupFailure(String paper, Throwable cause) {
@@ -85,6 +102,7 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
         // Will not be used
     }
 
+    // PaperFetcher Delegate
     @Override public void onPaperFetched(Paper paper) {
         // Update the storage entry
         storage.updatePaper(paper);
@@ -92,6 +110,6 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
     }
 
     @Override public void onFetchFailed(Paper paper, Throwable error) {
-        logger.error("Failed to download paper "+paper.getIdentifier(), error);
+        logger.error("Failed to download paper "+paper.getFileLocation(), error);
     }
 }

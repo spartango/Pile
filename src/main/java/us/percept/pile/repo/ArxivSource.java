@@ -158,10 +158,12 @@ public class ArxivSource extends AsyncPaperSource {
 
         // Check that there's a body to parse
         if (body.length() == 0) {
+            logger.info("No data pulled");
             return null;
         }
 
         try {
+            logger.info("Body: "+body.toString());
             return parseResults(parseAtomBody(body.toString()));
         } catch (ParserConfigurationException | IOException | SAXException e) {
             logger.error("Failed to parse body ", e);
@@ -175,7 +177,8 @@ public class ArxivSource extends AsyncPaperSource {
 
     @Override
     public void requestPaper(final String identifier) {
-        client.get("/api/query?id_list=" + identifier, new Handler<HttpClientResponse>() {
+        String request = "/api/query?id_list="+ identifier;
+        client.get(request, new Handler<HttpClientResponse>() {
             @Override
             public void handle(HttpClientResponse event) {
                 // If its not a good response, don't carry on
@@ -260,7 +263,8 @@ public class ArxivSource extends AsyncPaperSource {
 
     private Paper parsePaper(Document document) {
         // Get the Entry tag, it's the only one
-        Node entry = document.getElementsByTagName("entry").item(0);
+        NodeList entries = document.getElementsByTagName("entry");
+        Node entry = entries.item(0);
         return parsePaper(entry);
     }
 
@@ -275,7 +279,10 @@ public class ArxivSource extends AsyncPaperSource {
                 // First and only child node is a <name>
                 String name = field.getTextContent().trim();
                 paper.addAuthor(name);
+            } else if (field.getNodeName().equals("id")) {
+                paper.setIdentifier(field.getTextContent());
             } else if (field.getNodeName().equals("published")) {
+
                 String dateString = field.getTextContent();
                 // Date is in yyyy-MM-ddTHH:mm:ssZ
                 DateFormat df = new SimpleDateFormat("yyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
@@ -297,11 +304,9 @@ public class ArxivSource extends AsyncPaperSource {
                     paper.setFileLocation(hrefNode.getNodeValue());
                 }
             }
-
             // Otherwise it's an extraneous field.
             // No, not everything in the arxiv metadata is actually useful. And who cares about DOIs?!
         }
-
 
         // Build a Paper
         return paper;

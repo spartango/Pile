@@ -18,7 +18,7 @@ public abstract class AsyncPaperSource implements PaperSource {
     protected static Vertx vertx = VertxFactory.newVertx();
     //protected static ExecutorService executor = Executors.newCachedThreadPool();
 
-    protected List<PaperSourceListener> listeners = new ArrayList<>();
+    protected List<PaperSourceListener> listeners = new ArrayList<>(1);
 
     /* protected void async(Runnable task) {
         executor.submit(task);

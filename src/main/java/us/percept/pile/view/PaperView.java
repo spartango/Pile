@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Author: spartango
@@ -39,10 +42,35 @@ public class PaperView extends JPanel implements ListCellRenderer {
     private JLabel     authorsField;
     private JTextArea  summaryArea;
     private JLabel     dateField;
-    private JLabel     pdfLabel;
+    private JLabel     statusLabel;
     private JSeparator separator;
 
     private Paper paper;
+    private List<PaperViewListener> listeners = new ArrayList<>(1);
+
+    public void addListener(PaperViewListener listener) {
+        listeners.add(listener);
+    }
+
+    public void addListeners(Collection<? extends PaperViewListener> l) {
+        listeners.addAll(l);
+    }
+
+    public void removeListener(PaperViewListener listener) {
+        listeners.remove(listener);
+    }
+
+    public void notifyPaperArchived(Paper paper) {
+        for (PaperViewListener listener : listeners) {
+            listener.onPaperArchived(paper);
+        }
+    }
+
+    public void notifyPaperOpened(Paper paper) {
+        for (PaperViewListener listener : listeners) {
+            listener.onPaperOpened(paper);
+        }
+    }
 
     public void setPaper(Paper p) {
         this.paper = p;
@@ -68,8 +96,8 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
         DateFormat df = new SimpleDateFormat("MMM yyy");
         String date = df.format(paper.getDate());
-        dateField.setText(date);
-        pdfLabel.setToolTipText(paper.getFileLocation());
+        dateField.setText(date + "  ");
+        statusLabel.setToolTipText(paper.getFileLocation());
     }
 
     @Override public Component getListCellRendererComponent(JList list,
@@ -105,7 +133,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
     private void $$$setupUI$$$() {
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
-        this.setBackground(new Color(-1));
+        this.setBackground(Color.white);
 
         // Border is thin on top and thicker/darker on the bottom
         Border topBorder = BorderFactory.createMatteBorder(0, 2, 0, 2, new Color(228, 228, 228));
@@ -186,11 +214,12 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   1,
                                                                   false));
-        pdfLabel = new JLabel();
-        pdfLabel.setForeground(UIManager.getColor("controlHighlight"));
-        pdfLabel.setText("PDF");
-        pdfLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 15));
-        this.add(pdfLabel,
+        statusLabel = new JLabel();
+        // A peculiar shade of green
+        statusLabel.setForeground(new Color(75, 168, 79));
+        statusLabel.setText("Archive  ");
+        statusLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 15));
+        this.add(statusLabel,
                  new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                   1,
                                                                   1,
@@ -204,6 +233,21 @@ public class PaperView extends JPanel implements ListCellRenderer {
                                                                   null,
                                                                   1,
                                                                   false));
+        statusLabel.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                notifyPaperArchived(paper);
+            }
+
+            @Override public void mouseEntered(MouseEvent e) {
+                statusLabel.setForeground(new Color(224, 72, 60));
+
+            }
+
+            @Override public void mouseExited(MouseEvent e) {
+                statusLabel.setForeground(new Color(75, 168, 79));
+            }
+        });
+
         separator = new JSeparator();
         this.add(separator,
                  new com.intellij.uiDesigner.core.GridConstraints(2,
@@ -223,13 +267,20 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
         this.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
-                notifySelected();
+                notifyPaperOpened(paper);
+            }
+
+            @Override public void mouseEntered(MouseEvent e) {
+                Color highlight = new Color(245, 245, 245);
+                setBackground(highlight);
+                summaryArea.setBackground(highlight);
+            }
+
+            @Override public void mouseExited(MouseEvent e) {
+                setBackground(Color.white);
+                summaryArea.setBackground(Color.white);
             }
         });
-    }
-
-    private void notifySelected() {
-        //TODO implement PaperView.notifySelected
     }
 
 

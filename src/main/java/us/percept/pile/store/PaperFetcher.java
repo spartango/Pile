@@ -30,7 +30,15 @@ public class PaperFetcher {
 
     public PaperFetcher(String paperFolder) {
         this.paperFolder = paperFolder;
-        listeners = new ArrayList<>();
+        listeners = new ArrayList<>(1);
+    }
+
+    public void addListener(PaperFetcherListener l) {
+        listeners.add(l);
+    }
+
+    public void removeListener(PaperFetcherListener l) {
+        listeners.remove(l);
     }
 
     public void fetch(final Paper paper) {
@@ -47,24 +55,48 @@ public class PaperFetcher {
             final HttpClient client = vertx.createHttpClient();
             client.setHost(url.getHost());
             client.setPort(url.getPort() == -1 ? url.getDefaultPort() : url.getPort());
-            client.get(url.getPath(), new Handler<HttpClientResponse>() {
+
+            // Hack to prevent us getting files without extensions
+            StringBuilder path = new StringBuilder(url.getPath());
+            if (!url.getPath().endsWith(".pdf")) {
+                logger.warn("Correcting url path " + path + " to use .pdf extension");
+                path.append(".pdf");
+            }
+            final String correctedPath = path.toString();
+
+            client.get(correctedPath, new Handler<HttpClientResponse>() {
                 @Override public void handle(HttpClientResponse event) {
                     // Check the status code
                     if (event.statusCode() != 200) {
-                        logger.error("Error fetching paper, bad status: " + event.statusCode());
-                        notifyFetchFailed(paper, new Exception("Not OK Status code " + event.statusCode()));
+                        logger.error("Error fetching "
+                                     + correctedPath
+                                     + " from "
+                                     + url.getHost()
+                                     + " bad status: "
+                                     + event.statusCode()
+                                     + " "
+                                     + event.statusMessage());
+                        notifyFetchFailed(paper,
+                                          new Exception("Not OK Status code "
+                                                        + event.statusCode()
+                                                        + " "
+                                                        + event.statusMessage()));
                         return;
                     }
 
                     // Open up a file to write to
-                    writePaper(paper, url.getFile(), event, client);
+                    writePaper(paper, correctedPath, event, client);
                 }
-            }).exceptionHandler(new Handler<Throwable>() {
-                @Override public void handle(Throwable event) {
-                    logger.error("Error fetching paper", event);
-                    notifyFetchFailed(paper, event);
-                }
-            }).end();
+            })
+                    .exceptionHandler(new Handler<Throwable>() {
+                        @Override public void handle(Throwable event) {
+                            logger.error("Error fetching paper", event);
+                            notifyFetchFailed(paper, event);
+                        }
+                    })
+                    .putHeader("User-Agent",
+                               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/536.30.1 (KHTML, like Gecko) Version/6.0.5 Safari/536.30.1")
+                    .end();
 
         } catch (MalformedURLException e) {
             logger.error("Invalid URL specified for fetching ", e);
@@ -73,12 +105,13 @@ public class PaperFetcher {
     }
 
     private void writePaper(final Paper paper, String filename, final ReadStream stream, final HttpClient client) {
-        final String path = paperFolder+ File.pathSeparator+filename;
+        String correctedFilename = filename.replace(File.separatorChar, '_');
+        final String path = paperFolder + File.separator + correctedFilename;
         vertx.fileSystem().open(path, new AsyncResultHandler<AsyncFile>() {
             public void handle(AsyncResult<AsyncFile> ar) {
                 if (!ar.succeeded()) {
                     // File failed to open
-                    logger.error("File "+path+" failed to open");
+                    logger.error("File " + path + " failed to open");
                     notifyFetchFailed(paper, ar.cause());
                     client.close();
                     return;
@@ -91,8 +124,8 @@ public class PaperFetcher {
                 stream.endHandler(new Handler<Void>() {
                     @Override public void handle(Void event) {
                         // Update the paper location
-                        logger.info("Paper downloaded to "+path);
-                        paper.setFileLocation("file://"+path);
+                        logger.info("Paper downloaded to " + path);
+                        paper.setFileLocation("file:///" + path);
                         client.close();
                         notifyFetched(paper);
                     }

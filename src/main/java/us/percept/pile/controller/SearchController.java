@@ -6,4 +6,5 @@ package us.percept.pile.controller;
  * Time: 10:06 PM.
  */
 public class SearchController {
+
 }

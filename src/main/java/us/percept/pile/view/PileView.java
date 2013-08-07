@@ -6,17 +6,19 @@ import us.percept.pile.model.Paper;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.*;
+import java.util.List;
 
 /**
  * Author: spartango
  * Date: 8/4/13
  * Time: 10:04 PM.
  */
-public class PileView extends JPanel {
+public class PileView extends JPanel implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(PileView.class);
 
     static {
@@ -36,39 +38,62 @@ public class PileView extends JPanel {
     private JScrollPane listScrollPane;
     private JPanel      paperList;
 
+    private List<Paper>            papers    = new LinkedList<>();
+    private List<PileViewListener> listeners = new ArrayList<>(1);
+
     private void createUIComponents() {
         searchField = new JTextField();
         paperList = new JPanel(new GridBagLayout());
         listScrollPane = new JScrollPane();
     }
 
-    public void addSearchListener(ActionListener listener) {
-        searchField.addActionListener(listener);
+    public void addListener(PileViewListener listener) {
+        listeners.add(listener);
     }
 
-    public void removeSearchListener(ActionListener listener) {
-        searchField.removeActionListener(listener);
+    public void removeListener(PileViewListener listener) {
+        listeners.remove(listener);
     }
 
     public void addPaper(Paper paper) {
         // Build a view for it
         PaperView view = new PaperView();
         view.setPaper(paper);
+        view.addListeners(listeners);
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = paperList.getComponentCount();
 
         paperList.add(view, constraints);
-        addSpacer();
+        Component spacer = addSpacer();
+        Component[] added = {view, spacer};
+        papers.add(paper);
+
+        this.repaint();
     }
 
-    private void addSpacer() {
+    public void removePaper(Paper paper) {
+        papers.remove(paper);
+
+        // Remove everything
+        clearPapers();
+
+        // Readd everything
+        addPapers(papers);
+
+        this.repaint();
+    }
+
+    private Component addSpacer() {
         GridBagConstraints spacerConstraints = new GridBagConstraints();
         spacerConstraints.gridx = 0;
         spacerConstraints.gridy = paperList.getComponentCount();
 
-        paperList.add(Box.createVerticalStrut(18), spacerConstraints);
+        Component spacer = Box.createVerticalStrut(18);
+        paperList.add(spacer, spacerConstraints);
+
+        return spacer;
     }
 
     public void addPapers(Collection<Paper> papers) {
@@ -82,6 +107,15 @@ public class PileView extends JPanel {
         addSpacer();
     }
 
+    public void notifySearchRequested(String query) {
+        for (PileViewListener listener : listeners) {
+            listener.onSearchRequested(query);
+        }
+    }
+
+    @Override public void actionPerformed(ActionEvent e) {
+        notifySearchRequested(e.getActionCommand());
+    }
 
     {
         // GUI Initializer
@@ -90,9 +124,13 @@ public class PileView extends JPanel {
 
     private void $$$setupUI$$$() {
         createUIComponents();
+
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(new Color(238, 238, 238));
         searchField.setFont(new Font("Roboto Regular", Font.PLAIN, 13));
+        searchField.setHorizontalAlignment(JTextField.CENTER);
+        searchField.addActionListener(this);
+
         this.add(searchField,
                  new com.intellij.uiDesigner.core.GridConstraints(0,
                                                                   0,
@@ -128,4 +166,6 @@ public class PileView extends JPanel {
 
         addSpacer();
     }
+
+
 }
