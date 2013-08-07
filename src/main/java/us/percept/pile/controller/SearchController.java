@@ -79,6 +79,11 @@ public class SearchController implements Controller, PileViewListener, PaperSour
 
         // Fetch the paper
         fetcher.fetch(paper);
+
+        // Remove this paper from the search
+        pileView.removePaper(paper);
+
+        pileView.setVisible(true);
     }
 
     @Override public void onPaperReceived(Paper paper) {

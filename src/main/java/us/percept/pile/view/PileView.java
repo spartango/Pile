@@ -15,8 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Author: spartango
@@ -44,7 +44,7 @@ public class PileView extends JPanel implements ActionListener {
     private JPanel      paperList;
     private JLabel      searchLabel;
 
-    private List<Paper>            papers    = new LinkedList<>();
+    private List<Paper>            papers    = new Vector<>();
     private List<PileViewListener> listeners = new ArrayList<>(1);
 
     private String actionString = "Archive";
@@ -68,6 +68,17 @@ public class PileView extends JPanel implements ActionListener {
     }
 
     public void addPaper(Paper paper) {
+        papers.add(paper);
+        renderPaper(paper);
+    }
+
+    private void renderPapers() {
+        for(Paper paper : papers) {
+            renderPaper(paper);
+        }
+    }
+
+    private void renderPaper(Paper paper) {
         // Build a view for it
         PaperView view = new PaperView(actionString);
         view.setPaper(paper);
@@ -80,22 +91,19 @@ public class PileView extends JPanel implements ActionListener {
         // UI components to be added
         paperList.add(view, constraints);
         addSpacer();
-
-        papers.add(paper);
-
-        this.setVisible(true);
     }
+
 
     public void removePaper(Paper paper) {
         papers.remove(paper);
 
-        // Remove everything
-        clearPapers();
+        // Remove everything from the view
+        paperList.removeAll();
 
         // Readd everything
-        addPapers(papers);
+        renderPapers();
 
-        this.setVisible(true);
+        listScrollPane.updateUI();
     }
 
     private Component addSpacer() {
@@ -116,9 +124,10 @@ public class PileView extends JPanel implements ActionListener {
     }
 
     public void clearPapers() {
+        papers.clear();
         paperList.removeAll();
         addSpacer();
-        this.setVisible(true);
+        listScrollPane.updateUI();
     }
 
     public void setSearchAction(String label) {
