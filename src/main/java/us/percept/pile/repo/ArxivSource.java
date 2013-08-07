@@ -32,7 +32,8 @@ public class ArxivSource extends AsyncPaperSource {
     private static final String ARXIV_HOST = "export.arxiv.org";
     private static final long   TIMEOUT    = 60000; // ms
 
-    private static final Logger logger = LoggerFactory.getLogger(ArxivSource.class);
+    private static final Logger logger      = LoggerFactory.getLogger(ArxivSource.class);
+    private static final int    MAX_RESULTS = 25;
 
     private HttpClient client;
 
@@ -62,7 +63,7 @@ public class ArxivSource extends AsyncPaperSource {
                     event.bodyHandler(new Handler<Buffer>() {
                         @Override
                         public void handle(Buffer event) {
-                            logger.info("Arxiv request succeeded with body of "+ event.length() + "b");
+                            logger.info("Arxiv request succeeded with body of " + event.length() + "b");
 
                             // Pass the data on for parsing
                             body.setBuffer(0, event);
@@ -110,35 +111,36 @@ public class ArxivSource extends AsyncPaperSource {
     public Collection<Paper> findPapers(final String query) {
         final Buffer body = new Buffer();
         synchronized (body) {
-            client.get("/api/query?search_query=" + query, new Handler<HttpClientResponse>() {
-                @Override
-                public void handle(HttpClientResponse event) {
-                    // If its not a good response, don't carry on
-                    if (event.statusCode() != 200) {
-                        logger.error("Arxiv returned " + event.statusCode() + " for query " + query);
-                        synchronized (body) {
-                            body.notify();
-                        }
-                        return;
-                    }
+            client.get("/api/query?search_query=" + query + "&max_results=" + MAX_RESULTS,
+                       new Handler<HttpClientResponse>() {
+                           @Override
+                           public void handle(HttpClientResponse event) {
+                               // If its not a good response, don't carry on
+                               if (event.statusCode() != 200) {
+                                   logger.error("Arxiv returned " + event.statusCode() + " for query " + query);
+                                   synchronized (body) {
+                                       body.notify();
+                                   }
+                                   return;
+                               }
 
-                    // Otherwise download the body
-                    event.bodyHandler(new Handler<Buffer>() {
-                        @Override
-                        public void handle(Buffer event) {
-                            logger.info("Arxiv query succeeded with body of "+ event.length() + "b");
+                               // Otherwise download the body
+                               event.bodyHandler(new Handler<Buffer>() {
+                                   @Override
+                                   public void handle(Buffer event) {
+                                       logger.info("Arxiv query succeeded with body of " + event.length() + "b");
 
-                            // Pass the data on for parsing
-                            body.setBuffer(0, event);
-                            synchronized (body) {
-                                // Notify the caller that we're done getting data
-                                body.notify();
-                            }
-                        }
-                    });
+                                       // Pass the data on for parsing
+                                       body.setBuffer(0, event);
+                                       synchronized (body) {
+                                           // Notify the caller that we're done getting data
+                                           body.notify();
+                                       }
+                                   }
+                               });
 
-                }
-            }).exceptionHandler(new Handler<Throwable>() {
+                           }
+                       }).exceptionHandler(new Handler<Throwable>() {
                 @Override
                 public void handle(Throwable event) {
                     logger.error("Arxiv request failed with ", event);
@@ -163,7 +165,7 @@ public class ArxivSource extends AsyncPaperSource {
         }
 
         try {
-            logger.info("Body: "+body.toString());
+            logger.info("Body: " + body.toString());
             return parseResults(parseAtomBody(body.toString()));
         } catch (ParserConfigurationException | IOException | SAXException e) {
             logger.error("Failed to parse body ", e);
@@ -177,7 +179,7 @@ public class ArxivSource extends AsyncPaperSource {
 
     @Override
     public void requestPaper(final String identifier) {
-        String request = "/api/query?id_list="+ identifier;
+        String request = "/api/query?id_list=" + identifier;
         client.get(request, new Handler<HttpClientResponse>() {
             @Override
             public void handle(HttpClientResponse event) {
@@ -193,7 +195,7 @@ public class ArxivSource extends AsyncPaperSource {
                 event.bodyHandler(new Handler<Buffer>() {
                     @Override
                     public void handle(Buffer event) {
-                        logger.info("Arxiv request succeeded with body of "+ event.length() + "b");
+                        logger.info("Arxiv request succeeded with body of " + event.length() + "b");
                         try {
                             Paper paper = parsePaper(parseAtomBody(event.toString()));
                             notifyPaperReceived(paper);
@@ -218,34 +220,35 @@ public class ArxivSource extends AsyncPaperSource {
 
     @Override
     public void requestSearch(final String query) {
-        client.get("/api/query?search_query=" + query, new Handler<HttpClientResponse>() {
-            @Override
-            public void handle(HttpClientResponse event) {
-                // If its not a good response, don't carry on
-                if (event.statusCode() != 200) {
-                    logger.error("Arxiv returned " + event.statusCode() + " for " + query);
-                    // Notify that there's been an error
-                    notifySearchFailure(query, new Exception("Not OK Status code " + event.statusCode()));
-                    return;
-                }
+        client.get("/api/query?search_query=" + query + "&max_results=" + MAX_RESULTS,
+                   new Handler<HttpClientResponse>() {
+                       @Override
+                       public void handle(HttpClientResponse event) {
+                           // If its not a good response, don't carry on
+                           if (event.statusCode() != 200) {
+                               logger.error("Arxiv returned " + event.statusCode() + " for " + query);
+                               // Notify that there's been an error
+                               notifySearchFailure(query, new Exception("Not OK Status code " + event.statusCode()));
+                               return;
+                           }
 
-                // Otherwise download the body
-                event.bodyHandler(new Handler<Buffer>() {
-                    @Override
-                    public void handle(Buffer event) {
-                        logger.info("Arxiv search succeeded with body of "+ event.length() + "b");
-                        try {
-                            Collection<Paper> results = parseResults(parseAtomBody(event.toString()));
-                            notifyResultsReceived(results);
-                        } catch (ParserConfigurationException | IOException | SAXException e) {
-                            logger.error("Failed to parse body ", e);
-                            notifySearchFailure(query, e);
-                        }
-                    }
-                });
+                           // Otherwise download the body
+                           event.bodyHandler(new Handler<Buffer>() {
+                               @Override
+                               public void handle(Buffer event) {
+                                   logger.info("Arxiv search succeeded with body of " + event.length() + "b");
+                                   try {
+                                       Collection<Paper> results = parseResults(parseAtomBody(event.toString()));
+                                       notifyResultsReceived(results);
+                                   } catch (ParserConfigurationException | IOException | SAXException e) {
+                                       logger.error("Failed to parse body ", e);
+                                       notifySearchFailure(query, e);
+                                   }
+                               }
+                           });
 
-            }
-        }).exceptionHandler(new Handler<Throwable>() {
+                       }
+                   }).exceptionHandler(new Handler<Throwable>() {
             @Override
             public void handle(Throwable event) {
                 logger.error("Arxiv request failed with ", event);
@@ -316,7 +319,7 @@ public class ArxivSource extends AsyncPaperSource {
         NodeList entries = document.getElementsByTagName("entry");
         List<Paper> papers = new ArrayList<>(entries.getLength());
 
-        logger.info("Query returned with "+entries.getLength()+" papers");
+        logger.info("Query returned with " + entries.getLength() + " papers");
 
         // Parse each entry, which represents a paper
         for (int i = 0; i < entries.getLength(); i++) {

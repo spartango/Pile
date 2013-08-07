@@ -19,6 +19,7 @@ import java.awt.*;
 public class ApplicationController implements Controller, ModeViewListener {
     // Controllers
     private QueueController queueController;
+    private SearchController exploreController;
 
     private Controller activeController;
 
@@ -44,6 +45,7 @@ public class ApplicationController implements Controller, ModeViewListener {
 
         // Setup the controllers
         queueController = new QueueController(pileView, paperStorage, paperSource, paperFetcher);
+        exploreController = new SearchController(pileView, paperStorage, paperSource);
 
         // Listen to mode transitions
         modeView.addListener(this);
@@ -81,16 +83,17 @@ public class ApplicationController implements Controller, ModeViewListener {
     }
 
     @Override public void onExploreMode() {
-        // Unload the current Controller
+        // Unload the active controller
         activeController.onUnload();
 
-        // TODO Load the explore controller
-        activeController = queueController;
-        queueController.onLoad();
+        // Load the explore controller
+        activeController = exploreController;
+        exploreController.onLoad();
+
     }
 
     @Override public void onQueueMode() {
-        // Unload the active controller
+        // Unload the current Controller
         activeController.onUnload();
 
         // Load the queue controller
@@ -99,11 +102,7 @@ public class ApplicationController implements Controller, ModeViewListener {
     }
 
     @Override public void onArchiveMode() {
-        activeController.onUnload();
 
-        // TODO Load the archive controller
-        activeController = queueController;
-        queueController.onLoad();
     }
 
 }
