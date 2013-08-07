@@ -38,6 +38,7 @@ public class SearchController implements Controller, PileViewListener, PaperSour
 
         // Set the search action
         pileView.setSearchAction("Search");
+        pileView.setPaperAction("Save");
 
         // Clear the pileview
         pileView.clearPapers();

@@ -49,6 +49,7 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
 
         // Set the search action
         pileView.setSearchAction("Import");
+        pileView.setPaperAction("Archive");
 
         // Clear the pileview
         pileView.clearPapers();

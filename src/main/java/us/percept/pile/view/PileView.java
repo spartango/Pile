@@ -47,6 +47,8 @@ public class PileView extends JPanel implements ActionListener {
     private List<Paper>            papers    = new LinkedList<>();
     private List<PileViewListener> listeners = new ArrayList<>(1);
 
+    private String actionString = "Archive";
+
     private void createUIComponents() {
         searchField = new JTextField();
         paperList = new JPanel(new GridBagLayout());
@@ -63,7 +65,7 @@ public class PileView extends JPanel implements ActionListener {
 
     public void addPaper(Paper paper) {
         // Build a view for it
-        PaperView view = new PaperView();
+        PaperView view = new PaperView(actionString);
         view.setPaper(paper);
         view.addListeners(listeners);
 
@@ -71,12 +73,13 @@ public class PileView extends JPanel implements ActionListener {
         constraints.gridx = 0;
         constraints.gridy = paperList.getComponentCount();
 
+        // UI components to be added
         paperList.add(view, constraints);
-        Component spacer = addSpacer();
-        Component[] added = {view, spacer};
+        addSpacer();
+
         papers.add(paper);
 
-        this.repaint();
+        this.setVisible(true);
     }
 
     public void removePaper(Paper paper) {
@@ -88,7 +91,7 @@ public class PileView extends JPanel implements ActionListener {
         // Readd everything
         addPapers(papers);
 
-        this.repaint();
+        this.setVisible(true);
     }
 
     private Component addSpacer() {
@@ -101,7 +104,6 @@ public class PileView extends JPanel implements ActionListener {
 
         return spacer;
     }
-
     public void addPapers(Collection<Paper> papers) {
         for (Paper p : papers) {
             addPaper(p);
@@ -111,6 +113,7 @@ public class PileView extends JPanel implements ActionListener {
     public void clearPapers() {
         paperList.removeAll();
         addSpacer();
+        this.setVisible(true);
     }
 
     public void setSearchAction(String label) {
@@ -125,6 +128,10 @@ public class PileView extends JPanel implements ActionListener {
 
     @Override public void actionPerformed(ActionEvent e) {
         notifySearchRequested(e.getActionCommand());
+    }
+
+    public void setPaperAction(String actionString) {
+        this.actionString = actionString;
     }
 
     {
