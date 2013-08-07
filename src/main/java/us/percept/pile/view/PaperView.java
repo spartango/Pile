@@ -239,7 +239,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
             }
 
             @Override public void mouseEntered(MouseEvent e) {
-                statusLabel.setForeground(new Color(224, 72, 60));
+                statusLabel.setForeground(new Color(247, 178, 61));
 
             }
 

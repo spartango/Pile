@@ -68,14 +68,6 @@ public class PaperFetcher {
                 @Override public void handle(HttpClientResponse event) {
                     // Check the status code
                     if (event.statusCode() != 200) {
-                        logger.error("Error fetching "
-                                     + correctedPath
-                                     + " from "
-                                     + url.getHost()
-                                     + " bad status: "
-                                     + event.statusCode()
-                                     + " "
-                                     + event.statusMessage());
                         notifyFetchFailed(paper,
                                           new Exception("Not OK Status code "
                                                         + event.statusCode()
@@ -87,15 +79,13 @@ public class PaperFetcher {
                     // Open up a file to write to
                     writePaper(paper, correctedPath, event, client);
                 }
-            })
-                    .exceptionHandler(new Handler<Throwable>() {
-                        @Override public void handle(Throwable event) {
-                            logger.error("Error fetching paper", event);
-                            notifyFetchFailed(paper, event);
-                        }
-                    })
-                    .putHeader("User-Agent",
-                               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/536.30.1 (KHTML, like Gecko) Version/6.0.5 Safari/536.30.1")
+            }).exceptionHandler(new Handler<Throwable>() {
+                @Override public void handle(Throwable event) {
+                    logger.error("Error fetching paper", event);
+                    notifyFetchFailed(paper, event);
+                }
+            }).putHeader("User-Agent",
+                         "libcurl-agent/1.0")
                     .end();
 
         } catch (MalformedURLException e) {
@@ -117,8 +107,10 @@ public class PaperFetcher {
                     return;
                 }
 
+                final AsyncFile file = ar.result();
+
                 // Pump!
-                Pump pump = Pump.createPump(stream, ar.result());
+                Pump pump = Pump.createPump(stream, file);
 
                 // When pumping is finished, notify
                 stream.endHandler(new Handler<Void>() {
@@ -126,6 +118,8 @@ public class PaperFetcher {
                         // Update the paper location
                         logger.info("Paper downloaded to " + path);
                         paper.setFileLocation("file:///" + path);
+                        file.flush();
+                        file.close();
                         client.close();
                         notifyFetched(paper);
                     }

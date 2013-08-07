@@ -1,5 +1,6 @@
 package us.percept.pile.view;
 
+import com.intellij.uiDesigner.core.GridConstraints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.percept.pile.model.Paper;
@@ -8,9 +9,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,6 +42,7 @@ public class PileView extends JPanel implements ActionListener {
     private JTextField  searchField;
     private JScrollPane listScrollPane;
     private JPanel      paperList;
+    private JLabel      searchLabel;
 
     private List<Paper>            papers    = new LinkedList<>();
     private List<PileViewListener> listeners = new ArrayList<>(1);
@@ -107,6 +113,10 @@ public class PileView extends JPanel implements ActionListener {
         addSpacer();
     }
 
+    public void setSearchAction(String label) {
+        searchLabel.setText(label + "  ");
+    }
+
     public void notifySearchRequested(String query) {
         for (PileViewListener listener : listeners) {
             listener.onSearchRequested(query);
@@ -125,7 +135,7 @@ public class PileView extends JPanel implements ActionListener {
     private void $$$setupUI$$$() {
         createUIComponents();
 
-        this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(new Color(238, 238, 238));
         searchField.setFont(new Font("Roboto Regular", Font.PLAIN, 13));
         searchField.setHorizontalAlignment(JTextField.CENTER);
@@ -145,11 +155,47 @@ public class PileView extends JPanel implements ActionListener {
                                                                   null,
                                                                   0,
                                                                   false));
+
+        // Action button for search
+        searchLabel = new JLabel();
+        searchLabel.setText("Import  ");
+        searchLabel.setForeground(new Color(56, 117, 206));
+        searchLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 15));
+        this.add(searchLabel,
+                 new GridConstraints(0,
+                                     1,
+                                     1,
+                                     1,
+                                     GridConstraints.ANCHOR_WEST,
+                                     GridConstraints.FILL_NONE,
+                                     GridConstraints.SIZEPOLICY_FIXED,
+                                     GridConstraints.SIZEPOLICY_FIXED,
+                                     null,
+                                     null,
+                                     null,
+                                     0,
+                                     false));
+        searchLabel.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                notifySearchRequested(searchField.getText());
+            }
+
+            @Override public void mouseEntered(MouseEvent e) {
+                searchLabel.setForeground(new Color(247, 178, 61));
+
+            }
+
+            @Override public void mouseExited(MouseEvent e) {
+                searchLabel.setForeground(new Color(56, 117, 206));
+            }
+        });
+
+        // The list itself
         this.add(listScrollPane,
                  new com.intellij.uiDesigner.core.GridConstraints(1,
                                                                   0,
                                                                   1,
-                                                                  1,
+                                                                  2,
                                                                   com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER,
                                                                   com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH,
                                                                   com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK
@@ -163,7 +209,6 @@ public class PileView extends JPanel implements ActionListener {
                                                                   false));
         listScrollPane.setViewportView(paperList);
         listScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-
         addSpacer();
     }
 

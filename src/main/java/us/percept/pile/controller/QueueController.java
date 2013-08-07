@@ -22,7 +22,7 @@ import java.util.Collection;
  * Date: 8/6/13
  * Time: 10:06 PM.
  */
-public class QueueController implements PaperSourceListener, PaperFetcherListener, PileViewListener {
+public class QueueController implements Controller, PaperSourceListener, PaperFetcherListener, PileViewListener {
     private static final Logger logger = LoggerFactory.getLogger(QueueController.class);
 
     private PileView pileView;
@@ -39,14 +39,17 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
         this.storage = storage;
         this.source = source;
         this.fetcher = fetcher;
-
-        pileView.addListener(this);
-        source.addListener(this);
-        fetcher.addListener(this);
     }
 
     // App Delegate
     public void onLoad() {
+        pileView.addListener(this);
+        source.addListener(this);
+        fetcher.addListener(this);
+
+        // Set the search action
+        pileView.setSearchAction("Import");
+
         // Clear the pileview
         pileView.clearPapers();
 
@@ -55,6 +58,13 @@ public class QueueController implements PaperSourceListener, PaperFetcherListene
         logger.info("Loaded "+papers.size()+" papers from file");
         pileView.addPapers(papers);
     }
+
+    public void onUnload() {
+        pileView.removeListener(this);
+        source.removeListener(this);
+        fetcher.removeListener(this);
+    }
+
 
     // PileView Delegate
     public void onSearchRequested(String identifier) {
