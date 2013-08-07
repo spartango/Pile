@@ -6,7 +6,6 @@ import us.percept.pile.model.Paper;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -22,30 +21,50 @@ public class PaperStorage {
                     .make();
 
     // MapDB persistent map of papers
-    private ConcurrentMap<String, Paper> paperMap;
+    private ConcurrentMap<String, Paper> queuedPapers;
+    private ConcurrentMap<String, Paper> archivedPapers;
 
     public PaperStorage() {
-        paperMap = masterDatabase.getHashMap("papersById");
+        queuedPapers = masterDatabase.getHashMap("queuedPapers");
+        archivedPapers = masterDatabase.getHashMap("archivedPapers");
     }
 
-    public Paper getPaper(String id) {
-        return paperMap.get(id);
+    public void enqueuePaper(Paper paper) {
+        queuedPapers.put(paper.getIdentifier(), paper);
     }
 
-    public void removePaper(String id) {
-        paperMap.remove(id);
+    public Paper dequeuePaper(String id) {
+        return queuedPapers.remove(id);
     }
 
-    public void addPaper(Paper paper) {
-        paperMap.put(paper.getIdentifier(), paper);
+    public void archivePaper(Paper paper) {
+        archivedPapers.put(paper.getIdentifier(), paper);
     }
 
-    public Collection<Paper> getAllPapers() {
-        return paperMap.values();
+    public Paper unarchivePaper(String id) {
+        return archivedPapers.remove(id);
     }
 
-    public Set<String> getAllIds() {
-        return paperMap.keySet();
+    public void deletePaper(String id) {
+        queuedPapers.remove(id);
+        archivedPapers.remove(id);
     }
 
+    public Collection<Paper> getQueue() {
+        return queuedPapers.values();
+    }
+
+    public Collection<Paper> getArchived() {
+        return archivedPapers.values();
+    }
+
+    public void updatePaper(Paper paper) {
+        if(queuedPapers.containsKey(paper.getIdentifier())) {
+            queuedPapers.put(paper.getIdentifier(), paper);
+        }
+
+        if(archivedPapers.containsKey(paper.getIdentifier())) {
+            archivedPapers.put(paper.getIdentifier(), paper);
+        }
+    }
 }

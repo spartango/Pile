@@ -11,8 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -31,7 +29,7 @@ public class PaperView extends JPanel implements ListCellRenderer {
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Regular.ttf"));
             ge.registerFont(robotoLight);
             ge.registerFont(robotoRegular);
-            logger.info("Fonts added: "+robotoLight.getName()+" & "+robotoRegular.getName());
+            logger.info("Fonts added: " + robotoLight.getName() + " & " + robotoRegular.getName());
         } catch (FontFormatException | IOException e) {
             logger.warn("Failed to load Roboto font");
         }
@@ -72,14 +70,6 @@ public class PaperView extends JPanel implements ListCellRenderer {
         String date = df.format(paper.getDate());
         dateField.setText(date);
         pdfLabel.setToolTipText(paper.getFileLocation());
-    }
-
-    public void openPaper() {
-        try {
-            Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
-        } catch (URISyntaxException | IOException e1) {
-            logger.error("Bad URL ", e1);
-        }
     }
 
     @Override public Component getListCellRendererComponent(JList list,
@@ -233,9 +223,13 @@ public class PaperView extends JPanel implements ListCellRenderer {
 
         this.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
-                openPaper();
+                notifySelected();
             }
         });
+    }
+
+    private void notifySelected() {
+        //TODO implement PaperView.notifySelected
     }
 
 

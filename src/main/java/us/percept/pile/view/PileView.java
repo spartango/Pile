@@ -26,7 +26,7 @@ public class PileView extends JPanel {
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Regular.ttf"));
             ge.registerFont(robotoLight);
             ge.registerFont(robotoRegular);
-            logger.info("Fonts added: "+robotoLight.getName()+" & "+robotoRegular.getName());
+            logger.info("Fonts added: " + robotoLight.getName() + " & " + robotoRegular.getName());
         } catch (FontFormatException | IOException e) {
             logger.warn("Failed to load Roboto font");
         }
