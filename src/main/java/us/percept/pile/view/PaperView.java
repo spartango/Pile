@@ -196,7 +196,7 @@ public class PaperView extends JPanel {
         statusLabel = new JLabel();
         // A peculiar shade of green
         statusLabel.setForeground(new Color(75, 168, 79));
-        statusLabel.setText(actionString+"  ");
+        statusLabel.setText(actionString + "  ");
         statusLabel.setFont(new Font("Roboto Regular", Font.PLAIN, 15));
         this.add(statusLabel,
                  new com.intellij.uiDesigner.core.GridConstraints(1,

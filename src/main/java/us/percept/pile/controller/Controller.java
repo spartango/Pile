@@ -8,5 +8,6 @@ package us.percept.pile.controller;
 public interface Controller {
 
     public void onLoad();
+
     public void onUnload();
 }

@@ -49,6 +49,10 @@ public class PileView extends JPanel implements ActionListener {
 
     private String actionString = "Archive";
 
+    public PileView() {
+        setup();
+    }
+
     private void createUIComponents() {
         searchField = new JTextField();
         paperList = new JPanel(new GridBagLayout());
@@ -104,6 +108,7 @@ public class PileView extends JPanel implements ActionListener {
 
         return spacer;
     }
+
     public void addPapers(Collection<Paper> papers) {
         for (Paper p : papers) {
             addPaper(p);
@@ -134,12 +139,8 @@ public class PileView extends JPanel implements ActionListener {
         this.actionString = actionString;
     }
 
-    {
-        // GUI Initializer
-        $$$setupUI$$$();
-    }
 
-    private void $$$setupUI$$$() {
+    private void setup() {
         createUIComponents();
 
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));

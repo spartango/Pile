@@ -7,6 +7,8 @@ package us.percept.pile.view;
  */
 public interface ModeViewListener {
     public void onExploreMode();
+
     public void onQueueMode();
+
     public void onArchiveMode();
 }

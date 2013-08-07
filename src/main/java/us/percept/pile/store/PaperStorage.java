@@ -59,11 +59,11 @@ public class PaperStorage {
     }
 
     public void updatePaper(Paper paper) {
-        if(queuedPapers.containsKey(paper.getIdentifier())) {
+        if (queuedPapers.containsKey(paper.getIdentifier())) {
             queuedPapers.put(paper.getIdentifier(), paper);
         }
 
-        if(archivedPapers.containsKey(paper.getIdentifier())) {
+        if (archivedPapers.containsKey(paper.getIdentifier())) {
             archivedPapers.put(paper.getIdentifier(), paper);
         }
     }

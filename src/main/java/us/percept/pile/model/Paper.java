@@ -11,7 +11,7 @@ import java.util.List;
  * Date: 8/2/13
  * Time: 6:21 PM
  */
-public class Paper implements Serializable{
+public class Paper implements Serializable {
 
     private String       identifier;
     private String       title;

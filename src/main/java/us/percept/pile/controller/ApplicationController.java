@@ -18,7 +18,7 @@ import java.awt.*;
  */
 public class ApplicationController implements Controller, ModeViewListener {
     // Controllers
-    private QueueController queueController;
+    private QueueController  queueController;
     private SearchController exploreController;
 
     private Controller activeController;
@@ -45,7 +45,7 @@ public class ApplicationController implements Controller, ModeViewListener {
 
         // Setup the controllers
         queueController = new QueueController(pileView, paperStorage, paperSource, paperFetcher);
-        exploreController = new SearchController(pileView, paperStorage, paperSource);
+        exploreController = new SearchController(pileView, paperStorage, paperSource, paperFetcher);
 
         // Listen to mode transitions
         modeView.addListener(this);

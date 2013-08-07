@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.regex.Matcher;
 
 /**
  * Author: spartango
@@ -56,7 +57,7 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
 
         // Get the current queue papers from storage
         Collection<Paper> papers = storage.getQueue();
-        logger.info("Loaded "+papers.size()+" papers from file");
+        logger.info("Loaded " + papers.size() + " papers from file");
         pileView.addPapers(papers);
     }
 
@@ -68,7 +69,15 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
 
 
     // PileView Delegate
-    public void onSearchRequested(String identifier) {
+    public void onSearchRequested(String query) {
+        String identifier = query;
+
+        // Check if this is an arxiv URL
+        if (query.startsWith("http://arxiv.org/abs/")) {
+            // Strip off the URL pieces
+            identifier = query.replaceFirst(Matcher.quoteReplacement("http://arxiv.org/abs/"), "");
+        }
+
         // Get the Paper metadata
         source.requestPaper(identifier);
     }
@@ -96,13 +105,13 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
         // Add this paper to the pileview
         pileView.addPaper(paper);
 
-        logger.info("Paper "+paper.getIdentifier()+" is queued");
+        logger.info("Paper " + paper.getIdentifier() + " is queued");
 
         fetcher.fetch(paper);
     }
 
     @Override public void onLookupFailure(String paper, Throwable cause) {
-        logger.error("Failed to find paper "+paper, cause);
+        logger.error("Failed to find paper " + paper, cause);
     }
 
     @Override public void onResultsReceived(Collection<Paper> papers) {
@@ -117,10 +126,10 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
     @Override public void onPaperFetched(Paper paper) {
         // Update the storage entry
         storage.updatePaper(paper);
-        logger.info("Paper "+paper.getIdentifier()+" storage entry updated");
+        logger.info("Paper " + paper.getIdentifier() + " storage entry updated");
     }
 
     @Override public void onFetchFailed(Paper paper, Throwable error) {
-        logger.error("Failed to download paper "+paper.getFileLocation(), error);
+        logger.error("Failed to download paper " + paper.getFileLocation(), error);
     }
 }
