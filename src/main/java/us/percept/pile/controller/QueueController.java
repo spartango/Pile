@@ -7,14 +7,10 @@ import us.percept.pile.repo.PaperSource;
 import us.percept.pile.repo.PaperSourceListener;
 import us.percept.pile.store.PaperFetcher;
 import us.percept.pile.store.PaperFetcherListener;
+import us.percept.pile.store.PaperIndex;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
-import us.percept.pile.view.PileViewListener;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.regex.Matcher;
 
@@ -23,28 +19,26 @@ import java.util.regex.Matcher;
  * Date: 8/6/13
  * Time: 10:06 PM.
  */
-public class QueueController implements Controller, PaperSourceListener, PaperFetcherListener, PileViewListener {
+public class QueueController extends PileViewController implements PaperSourceListener, PaperFetcherListener {
     private static final Logger logger = LoggerFactory.getLogger(QueueController.class);
 
-    private PileView pileView;
-
-    private PaperStorage storage;
     private PaperSource  source;
     private PaperFetcher fetcher;
+    private PaperIndex index;
 
     public QueueController(PileView pileView,
                            PaperStorage storage,
                            PaperSource source,
-                           PaperFetcher fetcher) {
-        this.pileView = pileView;
-        this.storage = storage;
+                           PaperFetcher fetcher, PaperIndex index) {
+        super(pileView, storage);
         this.source = source;
         this.fetcher = fetcher;
+        this.index = index;
     }
 
     // App Delegate
-    public void onLoad() {
-        pileView.addListener(this);
+    @Override public void onLoad() {
+        super.onLoad();
         source.addListener(this);
         fetcher.addListener(this);
 
@@ -61,15 +55,14 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
         pileView.addPapers(papers);
     }
 
-    public void onUnload() {
-        pileView.removeListener(this);
+    @Override public void onUnload() {
+        super.onUnload();
         source.removeListener(this);
         fetcher.removeListener(this);
     }
 
-
     // PileView Delegate
-    public void onSearchRequested(String query) {
+    @Override public void onSearchRequested(String query) {
         String identifier = query;
 
         // Check if this is an arxiv URL
@@ -82,20 +75,17 @@ public class QueueController implements Controller, PaperSourceListener, PaperFe
         source.requestPaper(identifier);
     }
 
-    public void onPaperArchived(Paper paper) {
+    @Override public void onPaperArchived(Paper paper) {
+        // Add the paper to the index
+        index.addPaper(paper);
         storage.archivePaper(paper);
-        storage.dequeuePaper(paper.getIdentifier());
 
+        // Remove it from the view
+        storage.dequeuePaper(paper.getIdentifier());
         pileView.removePaper(paper);
     }
 
-    public void onPaperOpened(Paper paper) {
-        try {
-            Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
-        } catch (URISyntaxException | IOException e1) {
-            logger.error("Bad URL ", e1);
-        }
-    }
+
 
     // PaperSource Delegate
     @Override public void onPaperReceived(Paper paper) {

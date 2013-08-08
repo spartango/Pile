@@ -1,8 +1,11 @@
 package us.percept.pile.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.percept.pile.repo.ArxivSource;
 import us.percept.pile.repo.PaperSource;
 import us.percept.pile.store.PaperFetcher;
+import us.percept.pile.store.PaperIndex;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.ModeView;
 import us.percept.pile.view.ModeViewListener;
@@ -10,6 +13,7 @@ import us.percept.pile.view.PileView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * Author: spartango
@@ -17,9 +21,12 @@ import java.awt.*;
  * Time: 10:05 PM.
  */
 public class ApplicationController implements Controller, ModeViewListener {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
+
     // Controllers
-    private QueueController  queueController;
-    private SearchController exploreController;
+    private QueueController   queueController;
+    private SearchController  exploreController;
+    private ArchiveController archiveController;
 
     private Controller activeController;
 
@@ -32,6 +39,7 @@ public class ApplicationController implements Controller, ModeViewListener {
     private PaperSource  paperSource;
     private PaperFetcher paperFetcher;
     private PaperStorage paperStorage;
+    private PaperIndex   paperIndex;
 
     public void onLoad() {
         // Setup the model facilities
@@ -39,12 +47,19 @@ public class ApplicationController implements Controller, ModeViewListener {
         paperFetcher = new PaperFetcher("/tmp/papers");
         paperStorage = new PaperStorage();
 
+        try {
+            paperIndex = new PaperIndex(paperStorage);
+        } catch (IOException e) {
+            logger.error("Failed to initialize the index", e);
+            return;
+        }
+
         // Setup the views
         pileView = new PileView();
         modeView = new ModeView();
 
         // Setup the controllers
-        queueController = new QueueController(pileView, paperStorage, paperSource, paperFetcher);
+        queueController = new QueueController(pileView, paperStorage, paperSource, paperFetcher, paperIndex);
         exploreController = new SearchController(pileView, paperStorage, paperSource, paperFetcher);
 
         // Listen to mode transitions
@@ -83,26 +98,25 @@ public class ApplicationController implements Controller, ModeViewListener {
     }
 
     @Override public void onExploreMode() {
-        // Unload the active controller
-        activeController.onUnload();
-
-        // Load the explore controller
-        activeController = exploreController;
-        exploreController.onLoad();
-
+        switchActiveController(exploreController);
     }
 
     @Override public void onQueueMode() {
-        // Unload the current Controller
-        activeController.onUnload();
-
-        // Load the queue controller
-        activeController = queueController;
-        queueController.onLoad();
+        switchActiveController(queueController);
     }
 
     @Override public void onArchiveMode() {
-
+        switchActiveController(archiveController);
     }
+
+    public void switchActiveController(Controller target) {
+        // Unload the current Controller
+        activeController.onUnload();
+
+        // Load the controller
+        activeController = target;
+        activeController.onLoad();
+    }
+
 
 }

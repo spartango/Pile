@@ -9,12 +9,7 @@ import us.percept.pile.store.PaperFetcher;
 import us.percept.pile.store.PaperFetcherListener;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
-import us.percept.pile.view.PileViewListener;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 
 /**
@@ -22,27 +17,28 @@ import java.util.Collection;
  * Date: 8/6/13
  * Time: 10:06 PM.
  */
-public class SearchController implements Controller, PileViewListener, PaperSourceListener, PaperFetcherListener {
+public class SearchController extends PileViewController implements PaperSourceListener, PaperFetcherListener {
     private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
 
-    private PileView pileView;
-
-    private PaperStorage storage;
     private PaperSource  source;
     private PaperFetcher fetcher;
+
+    private Collection<Paper> lastResults;
 
     public SearchController(PileView pileView,
                             PaperStorage storage,
                             PaperSource source,
                             PaperFetcher fetcher) {
-        this.pileView = pileView;
+        super(pileView, storage);
         this.storage = storage;
         this.source = source;
         this.fetcher = fetcher;
+
+        lastResults = null;
     }
 
     @Override public void onLoad() {
-        pileView.addListener(this);
+        super.onLoad();
         source.addListener(this);
         fetcher.addListener(this);
 
@@ -52,24 +48,21 @@ public class SearchController implements Controller, PileViewListener, PaperSour
 
         // Clear the pileview
         pileView.clearPapers();
+
+        if(lastResults != null && !lastResults.isEmpty()) {
+            pileView.addPapers(lastResults);
+        }
     }
 
     @Override public void onUnload() {
-        pileView.removeListener(this);
+        super.onUnload();
         source.removeListener(this);
         fetcher.removeListener(this);
     }
 
     @Override public void onSearchRequested(String query) {
+        pileView.clearPapers();
         source.requestSearch(query);
-    }
-
-    @Override public void onPaperOpened(Paper paper) {
-        try {
-            Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
-        } catch (URISyntaxException | IOException e1) {
-            logger.error("Bad URL ", e1);
-        }
     }
 
     @Override public void onPaperArchived(Paper paper) {
@@ -81,9 +74,8 @@ public class SearchController implements Controller, PileViewListener, PaperSour
         fetcher.fetch(paper);
 
         // Remove this paper from the search
+        lastResults.remove(paper);
         pileView.removePaper(paper);
-
-        pileView.setVisible(true);
     }
 
     @Override public void onPaperReceived(Paper paper) {
@@ -91,6 +83,7 @@ public class SearchController implements Controller, PileViewListener, PaperSour
     }
 
     @Override public void onResultsReceived(Collection<Paper> papers) {
+        lastResults = papers;
         pileView.addPapers(papers);
     }
 
