@@ -61,6 +61,7 @@ public class ApplicationController implements Controller, ModeViewListener {
         // Setup the controllers
         queueController = new QueueController(pileView, paperStorage, paperSource, paperFetcher, paperIndex);
         exploreController = new SearchController(pileView, paperStorage, paperSource, paperFetcher);
+        archiveController = new ArchiveController(pileView, paperStorage, paperIndex);
 
         // Listen to mode transitions
         modeView.addListener(this);

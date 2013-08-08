@@ -1,6 +1,7 @@
 package us.percept.pile.store;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -37,21 +38,19 @@ public class PaperIndex {
     protected static final String INDEX_PATH    = "paperIndex.ldb";
     private static final   int    HITS_PER_PAGE = 10;
 
-    private Directory        index;
-    private IndexWriter      writer;
-    private IndexReader      reader;
-    private IndexSearcher    searcher;
-    private StandardAnalyzer analyzer;
+    private Directory     index;
+    private IndexWriter   writer;
+    private IndexReader   reader;
+    private IndexSearcher searcher;
+    private Analyzer      analyzer;
 
 
     private PaperStorage storage;
 
     public PaperIndex(PaperStorage storage) throws IOException {
         index = new RAMDirectory(); // TODO use the database file
-        analyzer = new StandardAnalyzer(Version.LUCENE_44);
+        analyzer = new EnglishAnalyzer(Version.LUCENE_44);
         writer = new IndexWriter(index, new IndexWriterConfig(Version.LUCENE_44, analyzer));
-        reader = DirectoryReader.open(index);
-        searcher = new IndexSearcher(reader);
 
         this.storage = storage;
     }
@@ -65,11 +64,12 @@ public class PaperIndex {
 
         // Add each of the authors
         for (String author : paper.getAuthors()) {
-            document.add(new StringField("author", author, Field.Store.YES));
+            document.add(new TextField("author", author, Field.Store.YES));
         }
 
         try {
             writer.addDocument(document);
+            writer.commit();
         } catch (IOException e) {
             logger.error("Error writing paper to index", e);
         }
@@ -77,9 +77,23 @@ public class PaperIndex {
 
     public List<Paper> search(String query) {
         ArrayList<Paper> results = new ArrayList<>(HITS_PER_PAGE);
+
+        // Lazy initialize
+        if (reader == null) {
+            try {
+                reader = DirectoryReader.open(index);
+            } catch (IOException e) {
+                logger.error("Failed to open the index for reading", e);
+                return results;
+            }
+        }
+        if (searcher == null) {
+            searcher = new IndexSearcher(reader);
+        }
+
         // Parse the query
         MultiFieldQueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44,
-                                                                      new String[]{"title", "summary"},
+                                                                      new String[]{"title", "summary", "author"},
                                                                       analyzer);
         queryParser.setDefaultOperator(QueryParser.Operator.OR);
 
