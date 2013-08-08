@@ -7,8 +7,14 @@ apply plugin: 'java'
 // IDE support
 apply plugin: 'eclipse'
 
+// Run support
+apply plugin:'application'
+
 // Language support
 sourceCompatibility = 1.7
+
+// Main class
+mainClassName = "us.percept.pile.deploy.Main"
 
 // Repositories
 repositories {
