@@ -1,5 +1,11 @@
 *.class
 
+.idea
+*.iml
+
+build
+.gradle
+
 # Package Files #
 *.jar
 *.war
