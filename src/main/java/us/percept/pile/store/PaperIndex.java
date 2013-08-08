@@ -18,12 +18,13 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.percept.pile.model.Paper;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public class PaperIndex {
     private PaperStorage storage;
 
     public PaperIndex(PaperStorage storage) throws IOException {
-        index = new RAMDirectory(); // TODO use the database file
+        index = FSDirectory.open(new File(INDEX_PATH)); // TODO use the database file
         analyzer = new EnglishAnalyzer(Version.LUCENE_44);
         writer = new IndexWriter(index, new IndexWriterConfig(Version.LUCENE_44, analyzer));
 

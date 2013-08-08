@@ -35,23 +35,30 @@ public class PaperStorage {
 
     public void enqueuePaper(Paper paper) {
         queuedPapers.put(paper.getIdentifier(), paper);
+        masterDatabase.commit();
     }
 
     public Paper dequeuePaper(String id) {
-        return queuedPapers.remove(id);
+        Paper removed = queuedPapers.remove(id);
+        masterDatabase.commit();
+        return removed;
     }
 
     public void archivePaper(Paper paper) {
         archivedPapers.put(paper.getIdentifier(), paper);
+        masterDatabase.commit();
     }
 
     public Paper unarchivePaper(String id) {
-        return archivedPapers.remove(id);
+        Paper paper = archivedPapers.remove(id);
+        masterDatabase.commit();
+        return paper;
     }
 
     public void deletePaper(String id) {
         queuedPapers.remove(id);
         archivedPapers.remove(id);
+        masterDatabase.commit();
     }
 
     public Collection<Paper> getQueue() {
@@ -70,5 +77,6 @@ public class PaperStorage {
         if (archivedPapers.containsKey(paper.getIdentifier())) {
             archivedPapers.put(paper.getIdentifier(), paper);
         }
+        masterDatabase.commit();
     }
 }

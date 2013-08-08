@@ -67,9 +67,7 @@ public class ApplicationController implements Controller, ModeViewListener {
         modeView.addListener(this);
 
         // Setup the frame
-        JFrame frame = new JFrame("Pile");
-
-        // TODO add the mode view
+        frame = new JFrame("Pile");
         pileView.add(modeView, new com.intellij.uiDesigner.core.GridConstraints(2,
                                                                                 0,
                                                                                 1,
@@ -99,14 +97,17 @@ public class ApplicationController implements Controller, ModeViewListener {
     }
 
     @Override public void onExploreMode() {
+        frame.setTitle("Explore");
         switchActiveController(exploreController);
     }
 
     @Override public void onQueueMode() {
+        frame.setTitle("Queue");
         switchActiveController(queueController);
     }
 
     @Override public void onArchiveMode() {
+        frame.setTitle("Archives");
         switchActiveController(archiveController);
     }
 
