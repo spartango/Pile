@@ -21,11 +21,11 @@ import java.util.List;
  * Time: 3:12 PM.
  */
 public class PaperFetcher {
-    private String                     paperFolder;
-    private List<PaperFetcherListener> listeners;
-
     protected static     Vertx  vertx  = VertxFactory.newVertx();
     private static final Logger logger = LoggerFactory.getLogger(PaperFetcher.class);
+
+    private String                     paperFolder;
+    private List<PaperFetcherListener> listeners;
 
     public PaperFetcher(String paperFolder) {
         this.paperFolder = paperFolder;

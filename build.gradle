@@ -23,8 +23,13 @@ dependencies {
     // Map DB (Persistent index)
     compile group: 'org.mapdb', name: 'mapdb', version: '0.9.3'
 
+    // Lucene
+    compile([group: 'org.apache.lucene', name: 'lucene-core', version: '4.4.0'],
+            [group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '4.4.0'],
+            [group: 'org.apache.lucene', name: 'lucene-queryparser', version: '4.4.0'])
+
     // PDFBox (PDF reading)
-    compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '1.8.2'
+    // compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '1.8.2'
 
     // IntelliJ FormsRT (Layout)
     compile group: 'com.intellij', name: 'forms_rt', version: '7.0.3'

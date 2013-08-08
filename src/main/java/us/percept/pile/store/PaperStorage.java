@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
  * Time: 3:12 PM.
  */
 public class PaperStorage {
-    protected static final String DB_PATH        = "paperStore.db";
+    protected static final String DB_PATH        = "paperStore.mdb";
     private static         DB     masterDatabase =
             DBMaker.newFileDB(new File(DB_PATH))
                     .closeOnJvmShutdown()
@@ -27,6 +27,10 @@ public class PaperStorage {
     public PaperStorage() {
         queuedPapers = masterDatabase.getHashMap("queuedPapers");
         archivedPapers = masterDatabase.getHashMap("archivedPapers");
+    }
+
+    public Paper getArchivedPaper(String id) {
+        return archivedPapers.get(id);
     }
 
     public void enqueuePaper(Paper paper) {
