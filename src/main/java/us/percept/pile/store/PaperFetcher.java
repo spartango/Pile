@@ -7,7 +7,6 @@ import org.vertx.java.core.file.AsyncFile;
 import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 import us.percept.pile.model.Paper;
 
 import java.io.File;
@@ -76,6 +75,9 @@ public class PaperFetcher {
                         return;
                     }
 
+                    // Suspend the stream while we open the file
+                    event.pause();
+
                     // Open up a file to write to
                     writePaper(paper, correctedPath, event, client);
                 }
@@ -94,7 +96,7 @@ public class PaperFetcher {
         }
     }
 
-    private void writePaper(final Paper paper, String filename, final ReadStream stream, final HttpClient client) {
+    private void writePaper(final Paper paper, String filename, final HttpClientResponse stream, final HttpClient client) {
         String correctedFilename = filename.replace(File.separatorChar, '_');
         final String path = paperFolder + File.separator + correctedFilename;
         vertx.fileSystem().open(path, new AsyncResultHandler<AsyncFile>() {
@@ -109,14 +111,10 @@ public class PaperFetcher {
 
                 final AsyncFile file = ar.result();
 
-                // Pump!
-                Pump pump = Pump.createPump(stream, file);
-
                 // When pumping is finished, notify
                 stream.endHandler(new Handler<Void>() {
                     @Override public void handle(Void event) {
                         // Update the paper location
-                        logger.info("Paper downloaded to " + path);
                         paper.setFileLocation("file:///" + path);
                         file.flush();
                         file.close();
@@ -125,7 +123,9 @@ public class PaperFetcher {
                     }
                 });
 
-                pump.start();
+                stream.resume();
+                // Pump!
+                Pump.createPump(stream, file).start();
             }
         });
     }
