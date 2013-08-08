@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -111,7 +112,7 @@ public class ArxivSource extends AsyncPaperSource {
     public Collection<Paper> findPapers(final String query) {
         final Buffer body = new Buffer();
         synchronized (body) {
-            client.get("/api/query?search_query=" + query + "&max_results=" + MAX_RESULTS,
+            client.get("/api/query?search_query=" + URLEncoder.encode(query) + "&max_results=" + MAX_RESULTS,
                        new Handler<HttpClientResponse>() {
                            @Override
                            public void handle(HttpClientResponse event) {
@@ -220,7 +221,8 @@ public class ArxivSource extends AsyncPaperSource {
 
     @Override
     public void requestSearch(final String query) {
-        client.get("/api/query?search_query=" + query + "&max_results=" + MAX_RESULTS,
+        String requestPath = "/api/query?search_query=" + URLEncoder.encode(query) + "&max_results=" + MAX_RESULTS;
+        client.get(requestPath,
                    new Handler<HttpClientResponse>() {
                        @Override
                        public void handle(HttpClientResponse event) {
