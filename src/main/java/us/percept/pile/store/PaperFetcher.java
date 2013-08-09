@@ -29,6 +29,10 @@ public class PaperFetcher {
 
     public PaperFetcher(String paperFolder) {
         this.paperFolder = paperFolder;
+
+        // Make sure the paper folder exists
+        vertx.fileSystem().mkdirSync(paperFolder, true);
+
         listeners = new ArrayList<>(1);
     }
 

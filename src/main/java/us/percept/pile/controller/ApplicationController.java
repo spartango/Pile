@@ -44,7 +44,7 @@ public class ApplicationController implements Controller, ModeViewListener {
     public void onLoad() {
         // Setup the model facilities
         paperSource = new ArxivSource();
-        paperFetcher = new PaperFetcher("/tmp/papers");
+        paperFetcher = new PaperFetcher("papers");
         paperStorage = new PaperStorage();
 
         try {
