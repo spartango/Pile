@@ -49,4 +49,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
+task uberjar(type: Jar) {
+    from files(sourceSets.main.output.classesDir)
+    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
+
+    manifest {
+        attributes 'Main-Class': 'us.percept.pile.deploy.Main'
+    }
+}
+
 defaultTasks 'build'

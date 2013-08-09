@@ -29,8 +29,12 @@ public class PileView extends JPanel implements ActionListener {
     static {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
-            Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Light.ttf"));
-            Font robotoLight = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Roboto-Regular.ttf"));
+            Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
+                                                 new File(ModeView.class.getResource("/fonts/Roboto-Regular.ttf")
+                                                                  .getFile()));
+            Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
+                                               new File(ModeView.class.getResource("/fonts/Roboto-Light.ttf")
+                                                                .getFile()));
             ge.registerFont(robotoLight);
             ge.registerFont(robotoRegular);
             logger.info("Fonts added: " + robotoLight.getName() + " & " + robotoRegular.getName());

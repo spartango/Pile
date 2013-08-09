@@ -1,11 +1,15 @@
 package us.percept.pile.view;
 
 import com.intellij.uiDesigner.core.GridConstraints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -14,6 +18,24 @@ import java.util.ArrayList;
  * Time: 3:32 PM.
  */
 public class ModeView extends JPanel {
+    private static final Logger logger = LoggerFactory.getLogger(ModeView.class);
+
+    static {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
+                                                 new File(ModeView.class.getResource("/fonts/Roboto-Regular.ttf")
+                                                                  .getFile()));
+            Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
+                                               new File(ModeView.class.getResource("/fonts/Roboto-Light.ttf")
+                                                                .getFile()));
+            ge.registerFont(robotoLight);
+            ge.registerFont(robotoRegular);
+            logger.info("Fonts added: " + robotoLight.getName() + " & " + robotoRegular.getName());
+        } catch (FontFormatException | IOException e) {
+            logger.warn("Failed to load Roboto font");
+        }
+    }
 
     private JLabel exploreLabel;
     private JLabel archiveLabel;
