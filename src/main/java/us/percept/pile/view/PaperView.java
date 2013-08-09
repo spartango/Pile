@@ -29,10 +29,10 @@ public class PaperView extends JPanel {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
             Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
-                                                 new File(ModeView.class.getResource("/fonts/Roboto-Regular.ttf")
+                                                 new File(PaperView.class.getResource("/fonts/Roboto-Regular.ttf")
                                                                   .getFile()));
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
-                                               new File(ModeView.class.getResource("/fonts/Roboto-Light.ttf")
+                                               new File(PaperView.class.getResource("/fonts/Roboto-Light.ttf")
                                                                 .getFile()));
             ge.registerFont(robotoLight);
             ge.registerFont(robotoRegular);
