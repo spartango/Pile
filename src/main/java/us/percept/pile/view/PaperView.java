@@ -9,8 +9,8 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,12 +28,15 @@ public class PaperView extends JPanel {
     static {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
+            InputStream streamL = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
             Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
-                                                 new File(PaperView.class.getResource("/fonts/Roboto-Regular.ttf")
-                                                                  .getFile()));
+                                                 streamL);
+            streamL.close();
+            InputStream streamR = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
-                                               new File(PaperView.class.getResource("/fonts/Roboto-Light.ttf")
-                                                                .getFile()));
+                                               streamR);
+            streamR.close();
+
             ge.registerFont(robotoLight);
             ge.registerFont(robotoRegular);
             logger.info("Fonts added: " + robotoLight.getName() + " & " + robotoRegular.getName());

@@ -11,8 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,12 +29,15 @@ public class PileView extends JPanel implements ActionListener {
     static {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
+            InputStream streamL = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
             Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
-                                                 new File(PileView.class.getResource("/fonts/Roboto-Regular.ttf")
-                                                                  .getFile()));
+                                                 streamL);
+            streamL.close();
+            InputStream streamR = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
-                                               new File(PileView.class.getResource("/fonts/Roboto-Light.ttf")
-                                                                .getFile()));
+                                               streamR);
+            streamR.close();
+
             ge.registerFont(robotoLight);
             ge.registerFont(robotoRegular);
             logger.info("Fonts added: " + robotoLight.getName() + " & " + robotoRegular.getName());
