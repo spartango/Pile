@@ -29,11 +29,11 @@ public class PileView extends JPanel implements ActionListener {
     static {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
-            InputStream streamL = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
+            InputStream streamL = PileView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
             Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
                                                  streamL);
             streamL.close();
-            InputStream streamR = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
+            InputStream streamR = PileView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
                                                streamR);
             streamR.close();
