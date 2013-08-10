@@ -88,8 +88,8 @@ public class ApplicationController implements Controller, ModeViewListener {
         frame.setVisible(true);
 
         // Default controller
-        activeController = queueController;
-        queueController.onLoad();
+        activeController = exploreController;
+        activeController.onLoad();
     }
 
     @Override public void onUnload() {
