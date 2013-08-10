@@ -13,6 +13,7 @@ import us.percept.pile.view.PileView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -44,7 +45,7 @@ public class ApplicationController implements Controller, ModeViewListener {
     public void onLoad() {
         // Setup the model facilities
         paperSource = new ArxivSource();
-        paperFetcher = new PaperFetcher("papers");
+        paperFetcher = new PaperFetcher(System.getProperty("user.dir") + File.separator + "papers");
         paperStorage = new PaperStorage();
 
         try {
