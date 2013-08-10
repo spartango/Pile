@@ -153,7 +153,7 @@ public class ModeView extends JPanel {
         queueLabel = new JLabel();
         queueLabel.setFont(labelFont);
         queueLabel.setHorizontalAlignment(0);
-        queueLabel.setText("Queue");
+        queueLabel.setText("Inbox");
         queueLabel.setForeground(new Color(225, 73, 63));
         queueLabel.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {

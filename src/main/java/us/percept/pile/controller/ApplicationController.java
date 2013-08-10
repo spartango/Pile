@@ -102,7 +102,7 @@ public class ApplicationController implements Controller, ModeViewListener {
     }
 
     @Override public void onQueueMode() {
-        frame.setTitle("Queue");
+        frame.setTitle("Inbox");
         switchActiveController(queueController);
     }
 
