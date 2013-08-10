@@ -5,6 +5,7 @@ import us.percept.pile.store.PaperIndex;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,9 +15,8 @@ import java.util.List;
  */
 public class ArchiveController extends PileViewController {
 
-    private PaperIndex        index;
+    private PaperIndex  index;
     private List<Paper> lastResults;
-
 
     public ArchiveController(PileView pileView, PaperStorage paperStorage, PaperIndex index) {
         super(pileView, paperStorage);
@@ -36,9 +36,29 @@ public class ArchiveController extends PileViewController {
         // Clear the pileview
         pileView.clearPapers();
 
-        if(lastResults != null && !lastResults.isEmpty()) {
+        if (lastResults != null && !lastResults.isEmpty()) {
             pileView.addPapers(lastResults);
+        } else {
+            // Show a placeholder card
+            showPlaceholder();
         }
+    }
+
+    private void showPlaceholder() {
+        Paper placeholder = new Paper();
+        placeholder.setTitle("Archives");
+
+        int archivedCount = storage.getArchived().size();
+        placeholder.setAuthors(Arrays.asList((archivedCount == 0 ? "No" : archivedCount)
+                                             + " Paper"
+                                             + (archivedCount != 1 ? "s" : "")));
+
+        placeholder.setSummary("The archives contain papers that you've finished reading. \n"
+                               + "To find an old paper, you can search for it using the box above. \n"
+                               + "You can look for specific titles, authors, or keywords. \n"
+                               + "All these papers are still available for you to peruse offline. \n");
+
+        pileView.addPaper(placeholder);
     }
 
     @Override public void onSearchRequested(String query) {

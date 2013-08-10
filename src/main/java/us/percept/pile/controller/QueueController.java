@@ -11,6 +11,7 @@ import us.percept.pile.store.PaperIndex;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Matcher;
 
@@ -20,11 +21,12 @@ import java.util.regex.Matcher;
  * Time: 10:06 PM.
  */
 public class QueueController extends PileViewController implements PaperSourceListener, PaperFetcherListener {
-    private static final Logger logger = LoggerFactory.getLogger(QueueController.class);
+    private static final Logger logger         = LoggerFactory.getLogger(QueueController.class);
+    private static final String PLACEHOLDER_ID = "PLACEHOLDER";
 
     private PaperSource  source;
     private PaperFetcher fetcher;
-    private PaperIndex index;
+    private PaperIndex   index;
 
     public QueueController(PileView pileView,
                            PaperStorage storage,
@@ -51,8 +53,30 @@ public class QueueController extends PileViewController implements PaperSourceLi
 
         // Get the current queue papers from storage
         Collection<Paper> papers = storage.getQueue();
-        logger.info("Loaded " + papers.size() + " papers from file");
-        pileView.addPapers(papers);
+        if (!papers.isEmpty()) {
+            logger.info("Loaded " + papers.size() + " papers from file");
+            pileView.addPapers(papers);
+        } else {
+            // Show a placeholder card
+            showPlaceholder();
+        }
+    }
+
+    private void showPlaceholder() {
+        Paper placeholder = new Paper();
+        placeholder.setTitle("Inbox");
+
+        placeholder.setAuthors(Arrays.asList("Your inbox is empty"));
+
+        placeholder.setSummary("Your inbox holds on to papers you'd like to read or are currently reading. \n"
+                               + "These papers are downloaded for you, so you can read them offline. \n"
+                               + "You can add a paper to the inbox by putting a link to its arXiv page in the box above. \n"
+                               + "Alternatively, you can use the Explore tab to search arXiv for new papers. \n"
+                               + "When you're done reading a paper, click Archive to move it to The Archives.  \n");
+
+        placeholder.setIdentifier(PLACEHOLDER_ID);
+
+        pileView.addPaper(placeholder);
     }
 
     @Override public void onUnload() {
@@ -76,6 +100,10 @@ public class QueueController extends PileViewController implements PaperSourceLi
     }
 
     @Override public void onPaperArchived(Paper paper) {
+        if(paper.getIdentifier().equals(PLACEHOLDER_ID)) {
+            return;
+        }
+
         // Add the paper to the index
         index.addPaper(paper);
         storage.archivePaper(paper);
@@ -84,7 +112,6 @@ public class QueueController extends PileViewController implements PaperSourceLi
         storage.dequeuePaper(paper.getIdentifier());
         pileView.removePaper(paper);
     }
-
 
 
     // PaperSource Delegate

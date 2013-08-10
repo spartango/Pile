@@ -10,6 +10,7 @@ import us.percept.pile.store.PaperFetcherListener;
 import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -19,6 +20,7 @@ import java.util.Collection;
  */
 public class SearchController extends PileViewController implements PaperSourceListener, PaperFetcherListener {
     private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
+    private static final String PLACEHOLDER_ID = "PLACEHOLDER";
 
     private PaperSource  source;
     private PaperFetcher fetcher;
@@ -49,10 +51,14 @@ public class SearchController extends PileViewController implements PaperSourceL
         // Clear the pileview
         pileView.clearPapers();
 
-        if(lastResults != null && !lastResults.isEmpty()) {
+        if (lastResults != null && !lastResults.isEmpty()) {
             pileView.addPapers(lastResults);
+        } else {
+            // Show a placeholder card
+            showPlaceholder();
         }
     }
+
 
     @Override public void onUnload() {
         super.onUnload();
@@ -65,7 +71,27 @@ public class SearchController extends PileViewController implements PaperSourceL
         source.requestSearch(query);
     }
 
+    private void showPlaceholder() {
+        Paper placeholder = new Paper();
+        placeholder.setTitle("Explore");
+
+        placeholder.setAuthors(Arrays.asList("Search arXiv for publications"));
+
+        placeholder.setSummary("Find new papers to read by searching arXiv using the box above. \n"
+                               + "ArXiv contains over 800,000 manuscripts in Physics, Mathematics, \n"
+                               + "Computer Science, Quantitative Biology, Quantitative Finance and Statistics. \n"
+                               + "You can look for papers containing specific titles, authors, or keywords. \n"
+                               + "When you find a paper you'd like to read, click Save to put it in your inbox. \n"
+                               + "You saved papers can be read offline, anytime. \n");
+        placeholder.setIdentifier(PLACEHOLDER_ID);
+        pileView.addPaper(placeholder);
+    }
+
     @Override public void onPaperArchived(Paper paper) {
+        if(paper.getIdentifier().equals(PLACEHOLDER_ID)) {
+            return;
+        }
+
         logger.info("Paper enqueued " + paper.getIdentifier());
         // Save this paper to the queue
         storage.enqueuePaper(paper);

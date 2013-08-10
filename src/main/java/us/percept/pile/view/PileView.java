@@ -77,6 +77,7 @@ public class PileView extends JPanel implements ActionListener {
     public void addPaper(Paper paper) {
         papers.add(paper);
         renderPaper(paper);
+        listScrollPane.updateUI();
     }
 
     private void renderPapers() {
