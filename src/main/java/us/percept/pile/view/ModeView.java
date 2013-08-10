@@ -27,7 +27,7 @@ public class ModeView extends JPanel {
             Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
                                                  streamL);
             streamL.close();
-            InputStream streamR = ModeView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
+            InputStream streamR = ModeView.class.getResourceAsStream("/fonts/Roboto-Light.ttf");
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
                                                streamR);
             streamR.close();

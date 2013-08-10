@@ -32,7 +32,7 @@ public class PaperView extends JPanel {
             Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT,
                                                  streamL);
             streamL.close();
-            InputStream streamR = PaperView.class.getResourceAsStream("/fonts/Roboto-Regular.ttf");
+            InputStream streamR = PaperView.class.getResourceAsStream("/fonts/Roboto-Light.ttf");
             Font robotoLight = Font.createFont(Font.TRUETYPE_FONT,
                                                streamR);
             streamR.close();
