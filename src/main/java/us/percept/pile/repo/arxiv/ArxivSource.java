@@ -1,4 +1,4 @@
-package us.percept.pile.repo;
+package us.percept.pile.repo.arxiv;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import us.percept.pile.model.Paper;
+import us.percept.pile.repo.AsyncPaperSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
