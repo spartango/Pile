@@ -131,7 +131,7 @@ public class QueueController extends PileViewController implements PaperSourceLi
         logger.error("Failed to find paper " + paper, cause);
     }
 
-    @Override public void onResultsReceived(Collection<Paper> papers) {
+    @Override public void onResultsReceived(String query, Collection<Paper> papers) {
         // Will not be used
     }
 

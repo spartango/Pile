@@ -108,7 +108,7 @@ public class SearchController extends PileViewController implements PaperSourceL
         // Ignore
     }
 
-    @Override public void onResultsReceived(Collection<Paper> papers) {
+    @Override public void onResultsReceived(String query, Collection<Paper> papers) {
         lastResults = papers;
         pileView.addPapers(papers);
     }

@@ -2,8 +2,8 @@ package us.percept.pile.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.percept.pile.repo.ArxivSource;
 import us.percept.pile.repo.PaperSource;
+import us.percept.pile.repo.arxiv.ArxivSource;
 import us.percept.pile.store.PaperFetcher;
 import us.percept.pile.store.PaperIndex;
 import us.percept.pile.store.PaperStorage;

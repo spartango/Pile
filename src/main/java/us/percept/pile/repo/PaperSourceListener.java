@@ -12,7 +12,7 @@ import java.util.Collection;
 public interface PaperSourceListener {
     public void onPaperReceived(Paper paper);
 
-    public void onResultsReceived(Collection<Paper> papers);
+    public void onResultsReceived(String query, Collection<Paper> papers);
 
     public void onLookupFailure(String paper, Throwable cause);
 

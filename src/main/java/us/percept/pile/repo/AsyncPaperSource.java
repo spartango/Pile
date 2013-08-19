@@ -44,9 +44,9 @@ public abstract class AsyncPaperSource implements PaperSource {
         }
     }
 
-    protected void notifyResultsReceived(Collection<Paper> results) {
+    protected void notifyResultsReceived(String query, Collection<Paper> results) {
         for (PaperSourceListener listener : listeners) {
-            listener.onResultsReceived(results);
+            listener.onResultsReceived(query, results);
         }
     }
 

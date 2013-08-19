@@ -32,10 +32,16 @@ import java.util.*;
  */
 public class ArxivSource extends AsyncPaperSource {
     private static final String ARXIV_HOST = "export.arxiv.org";
-    private static final long   TIMEOUT    = 60000; // ms
 
-    private static final Logger logger      = LoggerFactory.getLogger(ArxivSource.class);
-    private static final int    MAX_RESULTS = 25;
+    private static final Logger logger = LoggerFactory.getLogger(ArxivSource.class);
+
+    private static final String     DATE_FORMAT = "yyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final DateFormat dateFormat  = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+
+    private static final int    MAX_RESULTS   = 25;
+    private static final String QUERY_PATH    = "/api/query";
+    private static final String PAPER_ACTION  = "id_list";
+    private static final String SEARCH_ACTION = "search_query";
 
     private HttpClient client;
 
@@ -46,7 +52,7 @@ public class ArxivSource extends AsyncPaperSource {
     // Asynchronous requests for arxiv materials
     @Override
     public void requestPaper(final String identifier) {
-        String request = "/api/query?id_list=" + identifier;
+        String request = QUERY_PATH + "?" + PAPER_ACTION + "=" + identifier;
         client.get(request, new Handler<HttpClientResponse>() {
             @Override
             public void handle(HttpClientResponse event) {
@@ -87,7 +93,13 @@ public class ArxivSource extends AsyncPaperSource {
 
     @Override
     public void requestSearch(final String query) {
-        String requestPath = "/api/query?search_query=" + URLEncoder.encode(query) + "&max_results=" + MAX_RESULTS;
+        String requestPath = QUERY_PATH
+                             + "?"
+                             + SEARCH_ACTION
+                             + "="
+                             + URLEncoder.encode(query)
+                             + "&max_results="
+                             + MAX_RESULTS;
         client.get(requestPath,
                    new Handler<HttpClientResponse>() {
                        @Override
@@ -107,7 +119,7 @@ public class ArxivSource extends AsyncPaperSource {
                                    logger.info("Arxiv search succeeded with body of " + event.length() + "b");
                                    try {
                                        Collection<Paper> results = parseResults(parseAtomBody(event.toString()));
-                                       notifyResultsReceived(results);
+                                       notifyResultsReceived(query, results);
                                    } catch (ParserConfigurationException | IOException | SAXException e) {
                                        logger.error("Failed to parse body ", e);
                                        notifySearchFailure(query, e);
@@ -156,9 +168,8 @@ public class ArxivSource extends AsyncPaperSource {
 
                 String dateString = field.getTextContent();
                 // Date is in yyyy-MM-ddTHH:mm:ssZ
-                DateFormat df = new SimpleDateFormat("yyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
                 try {
-                    Date result = df.parse(dateString);
+                    Date result = dateFormat.parse(dateString);
                     paper.setDate(result);
                 } catch (ParseException e) {
                     logger.warn("Failed to parse publication date for " + dateString);
