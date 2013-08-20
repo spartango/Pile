@@ -7,6 +7,7 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,6 +41,7 @@ public class PubmedSource extends AsyncPaperSource {
     private static final String DB_PARAM      = "db=pubmed";
     private static final String RETURN_PARAM  = "retmode=xml";
     private static final String SEARCH_ACTION = "term";
+    private static final String PUBMED_URL    = "http://www.ncbi.nlm.nih.gov/pubmed";
 
     private HttpClient client;
 
@@ -225,10 +228,88 @@ public class PubmedSource extends AsyncPaperSource {
     }
 
     private Collection<Paper> parseListing(Document document) {
-        return null;
+        NodeList citations = document.getElementsByTagName("MedlineCitation");
+        List<Paper> papers = new ArrayList<>(citations.getLength());
+        for (int i = 0; i < citations.getLength(); i++) {
+            papers.add(parsePaper(citations.item(i)));
+        }
+        return papers;
     }
 
     private Paper parsePaper(Document document) {
+        // Get the medline citation <MedlineCitation>
+        NodeList citations = document.getElementsByTagName("MedlineCitation");
+
+        if (citations.getLength() < 1) {
+            return null;
+        } else {
+            return parsePaper(citations.item(0));
+        }
+    }
+
+    private Paper parsePaper(Node citationNode) {
+        Paper paper = new Paper();
+        // For each child node
+        NodeList childNodes = citationNode.getChildNodes();
+
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node child = childNodes.item(i);
+            String nodeName = child.getNodeName();
+
+            if (nodeName.equals("PMID")) {
+                // <PMID Version="1">11748933</PMID>
+                String id = child.getTextContent();
+                paper.setIdentifier(id);
+
+                // Generate the URL
+                paper.setFileLocation(PUBMED_URL + "/" + id);
+
+            } else if (nodeName.equals("DateCreated")) {
+                // Parse the date
+                Date date = parseDate(child);
+                paper.setDate(date);
+
+            } else if (nodeName.equals("otherArticle")) {
+                // If its the otherArticle, parse and mutate the paper
+                parseOtherArticle(child, paper);
+            }
+        }
+
+        return paper;
+    }
+
+    private Date parseDate(Node child) {
+        return null; //TODO implement PubmedSource.parseDate
+    }
+
+    private void parseOtherArticle(Node otherArticle, Paper target) {
+        // <otherArticle PubModel="Print">
+        NodeList childNodes = otherArticle.getChildNodes();
+
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node child = childNodes.item(i);
+            String nodeName = child.getNodeName();
+            if (nodeName.equals("ArticleTitle")) {
+                // Get the ArticleTitle
+                target.setTitle(child.getTextContent());
+            } else if (nodeName.equals("Abstract")) {
+                // Get the AbstractText
+                Node abstractNode = child.getFirstChild();
+
+                // Get the body
+                target.setSummary(abstractNode.getTextContent());
+            } else if (nodeName.equals("AuthorList")) {
+                // Get the AuthorList
+                target.setAuthors(parseAuthors(child));
+            }
+
+        }
+    }
+
+    private List<String> parseAuthors(Node child) {
+        // For each author, parse the author
+
         return null;
     }
+
 }
