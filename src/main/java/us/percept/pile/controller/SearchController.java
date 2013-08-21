@@ -27,8 +27,17 @@ public class SearchController extends PileViewController implements PaperSourceL
             + "Computer Science, Quantitative Biology, Quantitative Finance and Statistics. \n"
             + "You can look for papers containing specific titles, authors, or keywords. \n"
             + "When you find a paper you'd like to read, click Save to put it in your inbox. \n"
-            + "You saved papers can be read offline, anytime. \n";
-    private static final String ARXIV_SUBTITLE_TEXT    = "Search arXiv for publications";
+            + "Your saved papers can be read offline, anytime. \n";
+
+    private static final String ARXIV_SUBTITLE_TEXT     = "Search arXiv for publications";
+    private static final String PUBMED_SUBTITLE_TEXT    = "Search Pubmed for publications";
+    private static final String PUBMED_PLACEHOLDER_TEXT =
+            "Find new papers to read by searching Pubmed using the box above. \n"
+            + "PubMed comprises more than 23 million citations for biomedical literature \n"
+            + "from MEDLINE, life science journals, and online books. \n"
+            + "You can look for papers containing specific titles, authors, or keywords. \n"
+            + "When you find a paper you'd like to read, click Save to put it in your inbox. \n"
+            + "Your saved papers can be read offline, anytime. \n";
 
     private PaperSource  source;
     private PaperFetcher fetcher;
