@@ -18,34 +18,44 @@ public class PubmedSourceTest {
     public static void main(String[] args) {
         PubmedSource source = new PubmedSource();
 
-        final CountDownLatch counter = new CountDownLatch(1);
+        final CountDownLatch firstCounter = new CountDownLatch(1);
+        final CountDownLatch secondCounter = new CountDownLatch(1);
 
         source.addListener(new PaperSourceListener() {
             @Override public void onPaperReceived(Paper paper) {
                 logger.info("Received paper: " + paper);
-                counter.countDown();
+                firstCounter.countDown();
             }
 
             @Override public void onResultsReceived(String query, Collection<Paper> papers) {
                 logger.info("Received results: " + papers);
-                counter.countDown();
+                secondCounter.countDown();
             }
 
             @Override public void onLookupFailure(String paper, Throwable cause) {
                 logger.error("Failed to lookup paper, " + paper, cause);
-                counter.countDown();
+                firstCounter.countDown();
             }
 
             @Override public void onSearchFailure(String query, Throwable cause) {
                 logger.error("Failed to search for " + query, cause);
-                counter.countDown();
+                secondCounter.countDown();
             }
         });
 
         source.requestPaper("11748933");
 
         try {
-            counter.await();
+            firstCounter.await();
+        } catch (InterruptedException e) {
+            logger.error("Wait interrupted by ", e);
+        }
+
+
+        source.requestSearch("neuron");
+
+        try {
+            secondCounter.await();
         } catch (InterruptedException e) {
             logger.error("Wait interrupted by ", e);
         }
