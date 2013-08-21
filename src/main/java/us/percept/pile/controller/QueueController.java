@@ -24,6 +24,16 @@ public class QueueController extends PileViewController implements PaperSourceLi
     private static final Logger logger         = LoggerFactory.getLogger(QueueController.class);
     private static final String PLACEHOLDER_ID = "PLACEHOLDER";
 
+    private static final String PLACEHOLDER_TEXT  =
+            "Your inbox holds on to papers you'd like to read or are currently reading. \n"
+            + "These papers are downloaded for you, so you can read them offline. \n"
+            + "You can add a paper to the inbox by putting a link to its page in the box above. \n"
+            + "Alternatively, you can use the Explore tab to search for new papers. \n"
+            + "When you're done reading a paper, click Archive to move it to The Archives.  \n";
+    
+    private static final String ARXIV_URL_PREFIX  = "http://arxiv.org/abs/";
+    private static final String PUBMED_URL_PREFIX = "http://www.ncbi.nlm.nih.gov/pubmed/";
+
     private PaperSource  source;
     private PaperFetcher fetcher;
     private PaperIndex   index;
@@ -68,11 +78,7 @@ public class QueueController extends PileViewController implements PaperSourceLi
 
         placeholder.setAuthors(Arrays.asList("Your inbox is empty"));
 
-        placeholder.setSummary("Your inbox holds on to papers you'd like to read or are currently reading. \n"
-                               + "These papers are downloaded for you, so you can read them offline. \n"
-                               + "You can add a paper to the inbox by putting a link to its arXiv page in the box above. \n"
-                               + "Alternatively, you can use the Explore tab to search arXiv for new papers. \n"
-                               + "When you're done reading a paper, click Archive to move it to The Archives.  \n");
+        placeholder.setSummary(PLACEHOLDER_TEXT);
 
         placeholder.setIdentifier(PLACEHOLDER_ID);
 
@@ -90,9 +96,11 @@ public class QueueController extends PileViewController implements PaperSourceLi
         String identifier = query;
 
         // Check if this is an arxiv URL
-        if (query.startsWith("http://arxiv.org/abs/")) {
+        if (query.startsWith(ARXIV_URL_PREFIX)) {
             // Strip off the URL pieces
-            identifier = query.replaceFirst(Matcher.quoteReplacement("http://arxiv.org/abs/"), "");
+            identifier = query.replaceFirst(Matcher.quoteReplacement(ARXIV_URL_PREFIX), "");
+        } else if (query.startsWith(PUBMED_URL_PREFIX)) {
+            identifier = query.replaceFirst(Matcher.quoteReplacement(PUBMED_URL_PREFIX), "");
         }
 
         // Get the Paper metadata
@@ -100,7 +108,7 @@ public class QueueController extends PileViewController implements PaperSourceLi
     }
 
     @Override public void onPaperArchived(Paper paper) {
-        if(paper.getIdentifier().equals(PLACEHOLDER_ID)) {
+        if (paper.getIdentifier().equals(PLACEHOLDER_ID)) {
             return;
         }
 

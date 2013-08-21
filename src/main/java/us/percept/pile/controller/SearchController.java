@@ -19,8 +19,16 @@ import java.util.Collection;
  * Time: 10:06 PM.
  */
 public class SearchController extends PileViewController implements PaperSourceListener, PaperFetcherListener {
-    private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
-    private static final String PLACEHOLDER_ID = "PLACEHOLDER";
+    private static final Logger logger                 = LoggerFactory.getLogger(SearchController.class);
+    private static final String PLACEHOLDER_ID         = "PLACEHOLDER";
+    private static final String ARXIV_PLACEHOLDER_TEXT =
+            "Find new papers to read by searching arXiv using the box above. \n"
+            + "ArXiv contains over 800,000 manuscripts in Physics, Mathematics, \n"
+            + "Computer Science, Quantitative Biology, Quantitative Finance and Statistics. \n"
+            + "You can look for papers containing specific titles, authors, or keywords. \n"
+            + "When you find a paper you'd like to read, click Save to put it in your inbox. \n"
+            + "You saved papers can be read offline, anytime. \n";
+    private static final String ARXIV_SUBTITLE_TEXT    = "Search arXiv for publications";
 
     private PaperSource  source;
     private PaperFetcher fetcher;
@@ -75,20 +83,15 @@ public class SearchController extends PileViewController implements PaperSourceL
         Paper placeholder = new Paper();
         placeholder.setTitle("Explore");
 
-        placeholder.setAuthors(Arrays.asList("Search arXiv for publications"));
+        placeholder.setAuthors(Arrays.asList(ARXIV_SUBTITLE_TEXT));
 
-        placeholder.setSummary("Find new papers to read by searching arXiv using the box above. \n"
-                               + "ArXiv contains over 800,000 manuscripts in Physics, Mathematics, \n"
-                               + "Computer Science, Quantitative Biology, Quantitative Finance and Statistics. \n"
-                               + "You can look for papers containing specific titles, authors, or keywords. \n"
-                               + "When you find a paper you'd like to read, click Save to put it in your inbox. \n"
-                               + "You saved papers can be read offline, anytime. \n");
+        placeholder.setSummary(ARXIV_PLACEHOLDER_TEXT);
         placeholder.setIdentifier(PLACEHOLDER_ID);
         pileView.addPaper(placeholder);
     }
 
     @Override public void onPaperArchived(Paper paper) {
-        if(paper.getIdentifier().equals(PLACEHOLDER_ID)) {
+        if (paper.getIdentifier().equals(PLACEHOLDER_ID)) {
             return;
         }
 

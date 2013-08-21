@@ -15,6 +15,10 @@ import java.util.List;
  */
 public class ArchiveController extends PileViewController {
 
+    private static final String PLACEHOLDER_TEXT = "The archives contain papers that you've finished reading. \n"
+                                                   + "To find an old paper, you can search for it using the box above. \n"
+                                                   + "You can look for specific titles, authors, or keywords. \n"
+                                                   + "All these papers are still available for you to peruse offline. \n";
     private PaperIndex  index;
     private List<Paper> lastResults;
 
@@ -53,10 +57,7 @@ public class ArchiveController extends PileViewController {
                                              + " Paper"
                                              + (archivedCount != 1 ? "s" : "")));
 
-        placeholder.setSummary("The archives contain papers that you've finished reading. \n"
-                               + "To find an old paper, you can search for it using the box above. \n"
-                               + "You can look for specific titles, authors, or keywords. \n"
-                               + "All these papers are still available for you to peruse offline. \n");
+        placeholder.setSummary(PLACEHOLDER_TEXT);
 
         pileView.addPaper(placeholder);
     }
