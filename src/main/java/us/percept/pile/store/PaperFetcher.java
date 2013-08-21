@@ -12,8 +12,7 @@ import us.percept.pile.model.Paper;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: spartango
@@ -23,6 +22,8 @@ import java.util.List;
 public class PaperFetcher {
     protected static     Vertx  vertx  = VertxFactory.newVertx();
     private static final Logger logger = LoggerFactory.getLogger(PaperFetcher.class);
+
+    private static Set<String> fetchableHosts = new HashSet<>(Arrays.asList("arxiv.org"));
 
     private String                     paperFolder;
     private List<PaperFetcherListener> listeners;
@@ -49,8 +50,8 @@ public class PaperFetcher {
             final URL url = new URL(paper.getFileLocation());
 
             // Check the protocol
-            if (!url.getProtocol().equals("http")) {
-                notifyFetchFailed(paper, new Exception("Invalid protocol"));
+            if (!checkFetchable(url)) {
+                notifyFetchFailed(paper, new Exception("Unfetchable paper location"));
                 return;
             }
 
@@ -100,7 +101,24 @@ public class PaperFetcher {
         }
     }
 
-    private void writePaper(final Paper paper, String filename, final HttpClientResponse stream, final HttpClient client) {
+    private boolean checkFetchable(URL url) {
+        // Check that its an HTTP link
+        if (!url.getProtocol().equals("http")) {
+            return false;
+        }
+
+        // Check that its from a whitelisted source
+        if (!fetchableHosts.contains(url.getHost())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void writePaper(final Paper paper,
+                            String filename,
+                            final HttpClientResponse stream,
+                            final HttpClient client) {
         String correctedFilename = filename.replace(File.separatorChar, '_');
         final String path = paperFolder + File.separator + correctedFilename;
         vertx.fileSystem().open(path, new AsyncResultHandler<AsyncFile>() {
