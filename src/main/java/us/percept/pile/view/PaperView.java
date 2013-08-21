@@ -165,6 +165,7 @@ public class PaperView extends JPanel {
         summaryArea = new JTextArea();
         summaryArea.setEditable(false);
         summaryArea.setLineWrap(true);
+        summaryArea.setWrapStyleWord(true);
         summaryArea.setText("This is a summary of the article presented here.");
         summaryArea.setFont(new Font("Roboto Regular", Font.PLAIN, 13));
         this.add(summaryArea,

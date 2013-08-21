@@ -92,9 +92,9 @@ public class SearchController extends PileViewController implements PaperSourceL
         Paper placeholder = new Paper();
         placeholder.setTitle("Explore");
 
-        placeholder.setAuthors(Arrays.asList(ARXIV_SUBTITLE_TEXT));
+        placeholder.setAuthors(Arrays.asList(PUBMED_SUBTITLE_TEXT));
 
-        placeholder.setSummary(ARXIV_PLACEHOLDER_TEXT);
+        placeholder.setSummary(PUBMED_PLACEHOLDER_TEXT);
         placeholder.setIdentifier(PLACEHOLDER_ID);
         pileView.addPaper(placeholder);
     }

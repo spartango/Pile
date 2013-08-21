@@ -328,7 +328,7 @@ public class PubmedSource extends AsyncPaperSource {
                 Node abstractNode = child.getChildNodes().item(1);
 
                 // Get the body
-                target.setSummary(abstractNode.getTextContent());
+                target.setSummary(abstractNode.getTextContent()+"\n");
             } else if (nodeName.equals("AuthorList")) {
                 // Get the AuthorList
                 target.setAuthors(parseAuthors(child));
