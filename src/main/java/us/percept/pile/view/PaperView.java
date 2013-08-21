@@ -98,7 +98,7 @@ public class PaperView extends JPanel {
 
         authorString.append("<html>");
         // Get the last author and guard against empty authors
-        String lastAuthor = authors.size() > 1 ? authors.get(authors.size() - 1) : "";
+        String lastAuthor = authors.size() > 0 ? authors.get(authors.size() - 1) : "";
         for (String author : authors) {
             authorString.append(author);
             if (author != lastAuthor) {
