@@ -19,10 +19,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Author: spartango
@@ -42,6 +42,9 @@ public class PubmedSource extends AsyncPaperSource {
     private static final String RETURN_PARAM  = "retmode=xml";
     private static final String SEARCH_ACTION = "term";
     private static final String PUBMED_URL    = "http://www.ncbi.nlm.nih.gov/pubmed";
+
+    private static final String     DATE_FORMAT = "yyyy MM dd";
+    private static final DateFormat dateFormat  = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
 
     private HttpClient client;
 
@@ -269,8 +272,8 @@ public class PubmedSource extends AsyncPaperSource {
                 Date date = parseDate(child);
                 paper.setDate(date);
 
-            } else if (nodeName.equals("otherArticle")) {
-                // If its the otherArticle, parse and mutate the paper
+            } else if (nodeName.equals("otherArticle") || nodeName.equals("Article")) {
+                // If its the otherArticle/Article, parse and mutate the paper
                 parseOtherArticle(child, paper);
             }
         }
@@ -278,8 +281,35 @@ public class PubmedSource extends AsyncPaperSource {
         return paper;
     }
 
-    private Date parseDate(Node child) {
-        return null; //TODO implement PubmedSource.parseDate
+    private Date parseDate(Node dateNode) {
+        String year = "2000";
+        String month = "01";
+        String day = "01";
+
+        NodeList childNodes = dateNode.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node child = childNodes.item(i);
+            String nodeName = child.getNodeName();
+
+            if (nodeName.equals("Year")) {
+                year = child.getTextContent();
+            } else if (nodeName.equals("Month")) {
+                month = child.getTextContent();
+            } else if (nodeName.equals("Day")) {
+                day = child.getTextContent();
+            }
+        }
+
+        try {
+            String dateString = year + " " + month + " " + day;
+            Date date = dateFormat.parse(dateString);
+            return date;
+
+        } catch (ParseException e) {
+            logger.error("Failed to parse date ", e);
+        }
+
+        return new Date(); //If parsing fails
     }
 
     private void parseOtherArticle(Node otherArticle, Paper target) {
@@ -292,9 +322,9 @@ public class PubmedSource extends AsyncPaperSource {
             if (nodeName.equals("ArticleTitle")) {
                 // Get the ArticleTitle
                 target.setTitle(child.getTextContent());
-            } else if (nodeName.equals("Abstract")) {
+            } else if (nodeName.equals("Abstract") && child.getChildNodes().getLength() > 1) {
                 // Get the AbstractText
-                Node abstractNode = child.getFirstChild();
+                Node abstractNode = child.getChildNodes().item(1);
 
                 // Get the body
                 target.setSummary(abstractNode.getTextContent());
@@ -306,10 +336,32 @@ public class PubmedSource extends AsyncPaperSource {
         }
     }
 
-    private List<String> parseAuthors(Node child) {
+    private List<String> parseAuthors(Node authorListNode) {
         // For each author, parse the author
+        NodeList childNodes = authorListNode.getChildNodes();
+        List<String> authors = new ArrayList<>(childNodes.getLength());
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            String author = parseAuthor(childNodes.item(i));
+            authors.add(author);
+        }
+        return authors;
+    }
 
-        return null;
+    private String parseAuthor(Node authorNode) {
+        String firstName = "";
+        String lastName = "";
+
+        NodeList childNodes = authorNode.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node child = childNodes.item(i);
+            String nodeName = child.getNodeName();
+            if(nodeName.equals("LastName")) {
+                lastName = child.getTextContent();
+            } else if(nodeName.equals("ForeName")) {
+                firstName = child.getTextContent();
+            }
+        }
+        return firstName+" "+lastName;
     }
 
 }

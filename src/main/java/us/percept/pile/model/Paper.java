@@ -93,4 +93,15 @@ public class Paper implements Serializable {
     public void setFileLocation(String fileLocation) {
         this.fileLocation = fileLocation;
     }
+
+    @Override public String toString() {
+        return "Paper{" +
+               "identifier='" + identifier + '\'' +
+               ", title='" + title + '\'' +
+               ", authors=" + authors +
+               ", summary='" + summary + '\'' +
+               ", date=" + date +
+               ", fileLocation='" + fileLocation + '\'' +
+               '}';
+    }
 }

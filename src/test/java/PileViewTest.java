@@ -1,8 +1,8 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.percept.pile.model.Paper;
-import us.percept.pile.repo.ArxivSource;
 import us.percept.pile.repo.PaperSourceListener;
+import us.percept.pile.repo.arxiv.ArxivSource;
 import us.percept.pile.view.PileView;
 import us.percept.pile.view.PileViewListener;
 
@@ -35,7 +35,7 @@ public class PileViewTest {
                 pileView.addPaper(paper);
             }
 
-            @Override public void onResultsReceived(Collection<Paper> papers) {
+            @Override public void onResultsReceived(String query, Collection<Paper> papers) {
                 pileView.clearPapers();
                 pileView.addPapers(papers);
             }
@@ -49,7 +49,7 @@ public class PileViewTest {
 
         pileView.addListener(new PileViewListener() {
             @Override public void onSearchRequested(String query) {
-                logger.info("Query: "+query);
+                logger.info("Query: " + query);
                 source.requestSearch(query);
             }
 

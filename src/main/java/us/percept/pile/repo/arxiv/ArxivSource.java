@@ -35,7 +35,7 @@ public class ArxivSource extends AsyncPaperSource {
 
     private static final Logger logger = LoggerFactory.getLogger(ArxivSource.class);
 
-    private static final String     DATE_FORMAT = "yyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final String     DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     private static final DateFormat dateFormat  = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
 
     private static final int    MAX_RESULTS   = 25;
