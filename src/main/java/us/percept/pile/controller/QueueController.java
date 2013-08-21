@@ -30,7 +30,7 @@ public class QueueController extends PileViewController implements PaperSourceLi
             + "You can add a paper to the inbox by putting a link to its page in the box above. \n"
             + "Alternatively, you can use the Explore tab to search for new papers. \n"
             + "When you're done reading a paper, click Archive to move it to The Archives.  \n";
-    
+
     private static final String ARXIV_URL_PREFIX  = "http://arxiv.org/abs/";
     private static final String PUBMED_URL_PREFIX = "http://www.ncbi.nlm.nih.gov/pubmed/";
 
@@ -119,6 +119,10 @@ public class QueueController extends PileViewController implements PaperSourceLi
         // Remove it from the view
         storage.dequeuePaper(paper.getIdentifier());
         pileView.removePaper(paper);
+
+        if(storage.getQueue().isEmpty()) {
+            showPlaceholder();
+        }
     }
 
 
