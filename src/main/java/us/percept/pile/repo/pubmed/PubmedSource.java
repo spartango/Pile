@@ -341,8 +341,13 @@ public class PubmedSource extends AsyncPaperSource {
         NodeList childNodes = authorListNode.getChildNodes();
         List<String> authors = new ArrayList<>(childNodes.getLength());
         for (int i = 0; i < childNodes.getLength(); i++) {
-            String author = parseAuthor(childNodes.item(i));
-            authors.add(author);
+
+            Node child = childNodes.item(i);
+            if (child.getNodeName().equals("Author")) {
+                String author = parseAuthor(child);
+                authors.add(author);
+
+            }
         }
         return authors;
     }
@@ -355,13 +360,13 @@ public class PubmedSource extends AsyncPaperSource {
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node child = childNodes.item(i);
             String nodeName = child.getNodeName();
-            if(nodeName.equals("LastName")) {
+            if (nodeName.equals("LastName")) {
                 lastName = child.getTextContent();
-            } else if(nodeName.equals("ForeName")) {
+            } else if (nodeName.equals("ForeName")) {
                 firstName = child.getTextContent();
             }
         }
-        return firstName+" "+lastName;
+        return firstName + " " + lastName;
     }
 
 }

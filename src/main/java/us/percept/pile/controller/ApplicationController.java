@@ -3,7 +3,7 @@ package us.percept.pile.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.percept.pile.repo.PaperSource;
-import us.percept.pile.repo.arxiv.ArxivSource;
+import us.percept.pile.repo.pubmed.PubmedSource;
 import us.percept.pile.store.PaperFetcher;
 import us.percept.pile.store.PaperIndex;
 import us.percept.pile.store.PaperStorage;
@@ -44,7 +44,7 @@ public class ApplicationController implements Controller, ModeViewListener {
 
     public void onLoad() {
         // Setup the model facilities
-        paperSource = new ArxivSource();
+        paperSource = new PubmedSource();
         paperFetcher = new PaperFetcher(System.getProperty("user.dir") + File.separator + "papers");
         paperStorage = new PaperStorage();
 
