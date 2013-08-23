@@ -64,6 +64,7 @@ public class SearchController extends PileViewController implements PaperSourceL
         // Set the search action
         pileView.setSearchAction("Search");
         pileView.setPaperAction("Save");
+        pileView.setPaperPopup("Open");
 
         // Clear the pileview
         pileView.clearPapers();
@@ -114,6 +115,10 @@ public class SearchController extends PileViewController implements PaperSourceL
         // Remove this paper from the search
         lastResults.remove(paper);
         pileView.removePaper(paper);
+    }
+
+    @Override public void onPaperMenu(Paper paper) {
+        onPaperOpened(paper);
     }
 
     @Override public void onPaperReceived(Paper paper) {

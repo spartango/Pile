@@ -65,6 +65,10 @@ public class PileViewTest {
             @Override public void onPaperArchived(Paper paper) {
                 logger.info("Paper archive requested");
             }
+
+            @Override public void onPaperMenu(Paper paper) {
+                //TODO implement .onPaperMenu
+            }
         });
 
         Thread.sleep(60000);

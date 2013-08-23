@@ -55,6 +55,7 @@ public class PileView extends JPanel implements ActionListener {
     private List<PileViewListener> listeners = new ArrayList<>(1);
 
     private String actionString = "Archive";
+    private String popupString = "Open";
 
     public PileView() {
         setup();
@@ -88,7 +89,7 @@ public class PileView extends JPanel implements ActionListener {
 
     private void renderPaper(Paper paper) {
         // Build a view for it
-        PaperView view = new PaperView(actionString);
+        PaperView view = new PaperView(actionString, popupString);
         view.setPaper(paper);
         view.addListeners(listeners);
 
@@ -156,6 +157,9 @@ public class PileView extends JPanel implements ActionListener {
         this.actionString = actionString;
     }
 
+    public void setPaperPopup(String actionString) {
+        this.popupString = actionString;
+    }
 
     private void setup() {
         createUIComponents();

@@ -11,4 +11,6 @@ public interface PaperViewListener {
     public void onPaperOpened(Paper paper);
 
     public void onPaperArchived(Paper paper);
+
+    public void onPaperMenu(Paper paper);
 }

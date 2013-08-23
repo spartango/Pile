@@ -7,8 +7,7 @@ import us.percept.pile.model.Paper;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -22,7 +21,7 @@ import java.util.List;
  * Date: 8/5/13
  * Time: 2:56 AM.
  */
-public class PaperView extends JPanel {
+public class PaperView extends JPanel implements MouseListener {
     private static final Logger logger = LoggerFactory.getLogger(PaperView.class);
 
     static {
@@ -51,17 +50,20 @@ public class PaperView extends JPanel {
     private JLabel     dateField;
     private JLabel     statusLabel;
     private JSeparator separator;
+    private JPopupMenu popup;
 
     private Paper paper;
     private List<PaperViewListener> listeners = new ArrayList<>(1);
-    private String actionString;
+    private String     actionString;
+    private String     popupString;
 
     public PaperView() {
-        this("Archive");
+        this("Archive", "Open");
     }
 
-    public PaperView(String actionString) {
+    public PaperView(String actionString, String popupString) {
         this.actionString = actionString;
+        this.popupString = popupString;
         setup();
     }
 
@@ -86,6 +88,12 @@ public class PaperView extends JPanel {
     public void notifyPaperOpened(Paper paper) {
         for (PaperViewListener listener : listeners) {
             listener.onPaperOpened(paper);
+        }
+    }
+
+    public void notifyPaperMenu(Paper paper) {
+        for (PaperViewListener listener : listeners) {
+            listener.onPaperMenu(paper);
         }
     }
 
@@ -118,6 +126,15 @@ public class PaperView extends JPanel {
     }
 
     private void setup() {
+        this.popup = new JPopupMenu();
+        JMenuItem menuItem = new JMenuItem(popupString);
+        menuItem.addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent e) {
+                notifyPaperMenu(paper);
+            }
+        });
+        popup.add(menuItem);
+
         this.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
         this.setBackground(Color.white);
 
@@ -252,23 +269,35 @@ public class PaperView extends JPanel {
                                                                   false));
 
 
-        this.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                notifyPaperOpened(paper);
-            }
-
-            @Override public void mouseEntered(MouseEvent e) {
-                Color highlight = new Color(245, 245, 245);
-                setBackground(highlight);
-                summaryArea.setBackground(highlight);
-            }
-
-            @Override public void mouseExited(MouseEvent e) {
-                setBackground(Color.white);
-                summaryArea.setBackground(Color.white);
-            }
-        });
+        this.addMouseListener(this);
     }
 
+    @Override public void mouseClicked(MouseEvent e) {
+        // Do nothing
+    }
+
+    @Override public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            popup.show(e.getComponent(),
+                       e.getX(), e.getY());
+        } else {
+            notifyPaperOpened(paper);
+        }
+    }
+
+    @Override public void mouseReleased(MouseEvent e) {
+        // Do nothing
+    }
+
+    @Override public void mouseEntered(MouseEvent e) {
+        Color highlight = new Color(245, 245, 245);
+        setBackground(highlight);
+        summaryArea.setBackground(highlight);
+    }
+
+    @Override public void mouseExited(MouseEvent e) {
+        setBackground(Color.white);
+        summaryArea.setBackground(Color.white);
+    }
 
 }

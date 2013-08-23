@@ -57,6 +57,7 @@ public class QueueController extends PileViewController implements PaperSourceLi
         // Set the search action
         pileView.setSearchAction("Import");
         pileView.setPaperAction("Archive");
+        pileView.setPaperPopup("Attach...");
 
         // Clear the pileview
         pileView.clearPapers();
@@ -123,6 +124,10 @@ public class QueueController extends PileViewController implements PaperSourceLi
         if(storage.getQueue().isEmpty()) {
             showPlaceholder();
         }
+    }
+
+    @Override public void onPaperMenu(Paper paper) {
+        // Open dialog to attach the paper
     }
 
 
