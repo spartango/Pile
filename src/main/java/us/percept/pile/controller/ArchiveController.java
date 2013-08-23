@@ -35,7 +35,7 @@ public class ArchiveController extends PileViewController {
         pileView.setSearchAction("Search");
         // No action
         pileView.setPaperAction("");
-        pileView.setPaperPopup("Open");
+        pileView.setPaperPopup("Attach...");
 
         // Clear the pileview
         pileView.clearPapers();
@@ -73,9 +73,5 @@ public class ArchiveController extends PileViewController {
 
     @Override public void onPaperArchived(Paper paper) {
         // Ignore
-    }
-
-    @Override public void onPaperMenu(Paper paper) {
-        onPaperOpened(paper);
     }
 }

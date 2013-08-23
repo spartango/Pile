@@ -7,7 +7,9 @@ import us.percept.pile.store.PaperStorage;
 import us.percept.pile.view.PileView;
 import us.percept.pile.view.PileViewListener;
 
+import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -41,6 +43,21 @@ public abstract class PileViewController implements Controller, PileViewListener
             Desktop.getDesktop().browse(new URL(paper.getFileLocation()).toURI());
         } catch (URISyntaxException | IOException e1) {
             logger.error("Bad URL ", e1);
+        }
+    }
+
+
+    @Override public void onPaperMenu(Paper paper) {
+        // Open dialog to attach the paper
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showOpenDialog(pileView);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            //This is where a real application would open the file.
+            logger.info("Attaching: " + file.getAbsolutePath() + " to " + paper);
+            paper.setFileLocation("file:///" + file.getAbsolutePath());
+        } else {
+            logger.warn("Attach cancelled");
         }
     }
 }

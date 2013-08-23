@@ -24,7 +24,7 @@ public class QueueController extends PileViewController implements PaperSourceLi
     private static final Logger logger         = LoggerFactory.getLogger(QueueController.class);
     private static final String PLACEHOLDER_ID = "PLACEHOLDER";
 
-    private static final String PLACEHOLDER_TEXT  =
+    private static final String PLACEHOLDER_TEXT =
             "Your inbox holds on to papers you'd like to read or are currently reading. \n"
             + "These papers are downloaded for you, so you can read them offline. \n"
             + "You can add a paper to the inbox by putting a link to its page in the box above. \n"
@@ -121,15 +121,10 @@ public class QueueController extends PileViewController implements PaperSourceLi
         storage.dequeuePaper(paper.getIdentifier());
         pileView.removePaper(paper);
 
-        if(storage.getQueue().isEmpty()) {
+        if (storage.getQueue().isEmpty()) {
             showPlaceholder();
         }
     }
-
-    @Override public void onPaperMenu(Paper paper) {
-        // Open dialog to attach the paper
-    }
-
 
     // PaperSource Delegate
     @Override public void onPaperReceived(Paper paper) {
